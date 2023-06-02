@@ -1,0 +1,42 @@
+﻿#ifndef QTSTANDARD_H
+#define QTSTANDARD_H
+
+#include <QPainter>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QEvent>
+#include <QMouseEvent>
+#include <QListView>
+#include <QListWidget>
+#include <QDebug>
+#include <QMenu>
+#include <QFileDialog>
+#include <QDialog>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QSignalMapper>
+#include <QRadioButton>
+#include <QApplication>
+#include <QMessageBox>
+#include <QCheckBox>
+#include <QTextEdit>
+#include <QRect>
+#include <QAbstractScrollArea>
+#include <QScrollBar>
+#include <QProgressBar>
+#include <QMenuBar>
+#include <QButtonGroup>
+#include <QMainWindow>
+#include <QTreeWidget>
+#include <QTableWidget>
+#include <QHeaderView>
+#include <QColor>
+#include <QSpinBox>
+#include <QSlider>
+#include <QGroupBox>
+#include <QWidget>
+#include <QTreeWidgetItem>
+
+#endif // QTSTANDARD_H
