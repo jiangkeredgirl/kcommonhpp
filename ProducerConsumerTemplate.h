@@ -10,6 +10,10 @@
 #include <map>
 #include <iostream>
 #include <string>
+#include <memory>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 using namespace std;
 
 
@@ -21,7 +25,7 @@ public:
 	typedef function<int(const shared_ptr<DataType>& data)> ConsumerF;
 
 	/**
-	 * 打开生产-消费线程，设置消费者回调函数. 
+	 * 打开生产-消费线程，设置消费者回调函数.
 	 */
 	int Open(ConsumerF consumerf)
 	{
@@ -31,7 +35,7 @@ public:
 	}
 	/**
 	 * 生产数据，调用此函数会将数据发送给消费者回调函数.
-	 * \return 0 数据生产成功，1 数据生产失败 
+	 * \return 0 数据生产成功，1 数据生产失败
 	 */
 	int Producer(const shared_ptr<DataType>& data)
 	{
@@ -48,7 +52,7 @@ public:
 		return error_code;
 	}
 	/**
-	 * 返回数据列表中数据个数. 
+	 * 返回数据列表中数据个数.
 	 * \return 数据列表大小
 	 */
 	int GetDataListSize()
@@ -56,9 +60,9 @@ public:
 		return m_data_list.size();
 	}
 	/**
-     * 关闭生产-消费线程.
-     * \return 0 
-     */
+	 * 关闭生产-消费线程.
+	 * \return 0
+	 */
 	int Close()
 	{
 		m_consumer_thread_kill = true;
@@ -127,7 +131,7 @@ private:
 
 
 /**
- * 获得对象的类名模板. 
+ * 获得对象的类名模板.
  */
 template<class T>
 std::string  ClassName(T& object)

@@ -53,43 +53,43 @@ using namespace spdlog;
 //static map<string, string> g_log_file_paths;
 //map<string, std::shared_ptr<spdlog::logger>> g_loggers;
 
-inline void WriteLogHeader(const string& loggername, const filename_t &filename, std::FILE *file_stream, const string& log_pattern);
+inline void WriteLogHeader(const string& loggername, const filename_t& filename, std::FILE* file_stream, const string& log_pattern);
 
 /**  */
-inline int InitLog(const string & root_log_dir, spdlog::level::level_enum log_level)
+inline int InitLog(const string& root_log_dir, spdlog::level::level_enum log_level)
 {
-    string default_log_path;    
-    string temp_log_path;
+	string default_log_path;
+	string temp_log_path;
 
 
-    string date = GetDateString(GetNowDateTimeStamp());
-    string time = GetTimeString(GetNowDateTimeStamp());
-    default_log_path = root_log_dir + "/" + date + "/" + date + "-" + time;
-    temp_log_path = default_log_path;
+	string date = GetDateString(GetNowDateTimeStamp());
+	string time = GetTimeString(GetNowDateTimeStamp());
+	default_log_path = root_log_dir + "/" + date + "/" + date + "-" + time;
+	temp_log_path = default_log_path;
 
-    CreateDir(default_log_path);
-    CreateDir(temp_log_path);
+	kk::CreateDir(default_log_path);
+	kk::CreateDir(temp_log_path);
 
-    default_log_path +=  "/drawbloodrobot.log";
-    temp_log_path    +=  "/drawbloodrobot_temp.log";
-    const string  log_pattern("[%i-%t-%Y-%m-%d %H:%M:%S.%e] [%l] %v");   
+	default_log_path += "/drawbloodrobot.log";
+	temp_log_path += "/drawbloodrobot_temp.log";
+	const string  log_pattern("[%i-%t-%Y-%m-%d %H:%M:%S.%e] [%l] %v");
 
-    spdlog::init_thread_pool(819200, 1);
+	spdlog::init_thread_pool(819200, 1);
 
-    bool is_async = true;
-    bool is_daily = true;
-    std::shared_ptr<spdlog::logger>  default_logger = CreateLogger("default_logger", true, true, is_async, is_daily, false, default_log_path, log_level, log_pattern, [log_pattern](const filename_t &filename, std::FILE *file_stream){WriteLogHeader("default_logger", filename, file_stream, log_pattern);});
-    std::shared_ptr<spdlog::logger>  temp_logger    = CreateLogger("temp_logger",    true, true, is_async, is_daily, false, temp_log_path,    log_level, log_pattern, [log_pattern](const filename_t &filename, std::FILE *file_stream){WriteLogHeader("temp_logger",    filename, file_stream, log_pattern);});
+	bool is_async = true;
+	bool is_daily = true;
+	std::shared_ptr<spdlog::logger>  default_logger = CreateLogger("default_logger", true, true, is_async, is_daily, false, default_log_path, log_level, log_pattern, [log_pattern](const filename_t& filename, std::FILE* file_stream) {WriteLogHeader("default_logger", filename, file_stream, log_pattern); });
+	std::shared_ptr<spdlog::logger>  temp_logger = CreateLogger("temp_logger", true, true, is_async, is_daily, false, temp_log_path, log_level, log_pattern, [log_pattern](const filename_t& filename, std::FILE* file_stream) {WriteLogHeader("temp_logger", filename, file_stream, log_pattern); });
 
-    //spdlog::set([](const std::string &msg) { spdlog::get("console")->error("*** LOGGER ERROR ***: {}", msg); });
-    //spdlog::get("console")->info("some invalid message to trigger an error {}{}{}{}", 3);
+	//spdlog::set([](const std::string &msg) { spdlog::get("console")->error("*** LOGGER ERROR ***: {}", msg); });
+	//spdlog::get("console")->info("some invalid message to trigger an error {}{}{}{}", 3);
 
-    return 0;
+	return 0;
 }
 
 inline void FlushLog()
 {
-    DropLog();
+	DropLog();
 }
 
 inline void WriteLogHeader(const string& loggername, const filename_t& filename, std::FILE* file_stream, const string& log_pattern)
