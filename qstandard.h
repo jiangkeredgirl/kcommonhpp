@@ -1,5 +1,5 @@
-﻿#ifndef QTSTANDARD_H
-#define QTSTANDARD_H
+﻿#ifndef QSTANDARD_H
+#define QSTANDARD_H
 
 #include <QPainter>
 #include <QHBoxLayout>
@@ -38,5 +38,7 @@
 #include <QGroupBox>
 #include <QWidget>
 #include <QTreeWidgetItem>
+#include <QSettings>
+#include <QMdiArea>
 
-#endif // QTSTANDARD_H
+#endif // QSTANDARD_H

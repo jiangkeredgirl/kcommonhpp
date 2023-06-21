@@ -146,3 +146,17 @@ std::string  ClassName(T& object)
 	int nameLength = lastSpaceIndex - firstSpaceIndex - 2;
 	return className.substr(firstSpaceIndex, nameLength);
 }
+
+template<class T>
+std::string  ClassName()
+{
+	//返回的类的全名
+	std::string className = std::string(typeid(T).name());
+	//第一个空格索引
+	int firstSpaceIndex = className.find_first_of(" ") + 1;
+	//最后一个空格索引
+	int lastSpaceIndex = className.find_last_of(" ");
+	//类名长度
+	int nameLength = lastSpaceIndex - firstSpaceIndex - 2;
+	return className.substr(firstSpaceIndex, nameLength);
+}

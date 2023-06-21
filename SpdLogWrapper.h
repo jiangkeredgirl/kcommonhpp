@@ -26,7 +26,6 @@ using namespace chrono;
 #include "spdlog/sinks/stdout_sinks.h"
 #include "spdlog/common.h"
 using namespace spdlog;
-#include "FileAssist.h"
 
 
 #define SIZE_100M           (1024 * 1024 * 100)  
@@ -92,17 +91,30 @@ const string  g_spdlog_default_pattern("[%i-%t-%Y-%m-%d %H:%M:%S.%e] [%l] %v"/*"
 typedef std::function<void(const filename_t &filename, std::FILE *file_stream)> after_open_eventf;
 
 
-inline std::shared_ptr<spdlog::logger> CreateLogger(const string & logger_name, bool is_stdout, bool is_fileout, bool is_async, bool is_daily, bool is_rotate, const string & file_path
-                                                    , spdlog::level::level_enum log_level = spdlog::level::info, const string & _log_pattern = g_spdlog_default_pattern
-                                                    , after_open_eventf open_eventf = nullptr)
+inline int SpdlogInit()
 {
-
+    spdlog::init_thread_pool(819200, 1);
     //当遇到错误级别以上的立刻刷新到日志
     spdlog::flush_on(spdlog::level::err);
     //每三秒刷新一次
     // periodically flush all *registered* loggers every 3 seconds:
     // warning: only use if all your loggers are thread safe ("_mt" loggers)
     spdlog::flush_every(std::chrono::seconds(3));
+
+    return 0;
+}
+
+inline std::shared_ptr<spdlog::logger> CreateLogger(const string & logger_name, bool is_stdout, bool is_fileout, bool is_async, bool is_daily, bool is_rotate, const string & file_path
+                                                    , spdlog::level::level_enum log_level = spdlog::level::info, const string & _log_pattern = g_spdlog_default_pattern
+                                                    , after_open_eventf open_eventf = nullptr)
+{
+
+    //当遇到错误级别以上的立刻刷新到日志
+    //spdlog::flush_on(spdlog::level::err);
+    //每三秒刷新一次
+    // periodically flush all *registered* loggers every 3 seconds:
+    // warning: only use if all your loggers are thread safe ("_mt" loggers)
+    //spdlog::flush_every(std::chrono::seconds(3));
 
     std::shared_ptr<spdlog::logger> logger = nullptr;
 

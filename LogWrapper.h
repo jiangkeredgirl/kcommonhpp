@@ -1,4 +1,4 @@
-//#pragma once
+#pragma once
 #ifndef LOG_WRAPPER_H
 #define LOG_WRAPPER_H
 
@@ -24,7 +24,7 @@ using namespace chrono;
 #include "spdlog/sinks/stdout_sinks.h"
 #include "spdlog/common.h"
 using namespace spdlog;
-#include "DateTimeAssist.h"
+#include "ktime.h"
 #include "SpdLogWrapper.h"
 
 
@@ -61,20 +61,19 @@ inline int InitLog(const string& root_log_dir, spdlog::level::level_enum log_lev
 	string default_log_path;
 	string temp_log_path;
 
-
-	string date = GetDateString(GetNowDateTimeStamp());
-	string time = GetTimeString(GetNowDateTimeStamp());
+	string date = KTime<>::GetDate(KTime<>::GetNowDateTime());
+	string time = KTime<>::GetTime(KTime<>::GetNowDateTime());
 	default_log_path = root_log_dir + "/" + date + "/" + date + "-" + time;
 	temp_log_path = default_log_path;
 
-	kk::CreateDir(default_log_path);
-	kk::CreateDir(temp_log_path);
+	KFile::CreateDir(default_log_path);
+	KFile::CreateDir(temp_log_path);
 
 	default_log_path += "/drawbloodrobot.log";
 	temp_log_path += "/drawbloodrobot_temp.log";
 	const string  log_pattern("[%i-%t-%Y-%m-%d %H:%M:%S.%e] [%l] %v");
 
-	spdlog::init_thread_pool(819200, 1);
+	SpdlogInit();
 
 	bool is_async = true;
 	bool is_daily = true;

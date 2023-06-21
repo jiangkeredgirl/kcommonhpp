@@ -8,12 +8,13 @@
 #pragma once
 
 #include "cstandard.h"
- //#include "qtstandard.h"
-#include "DateTimeAssist.h"
-#include "FileAssist.h"
+ //#include "qstandard.h"
+#include "ktime.h"
+#include "kfile.h"
 #include "ThreadAssist.h"
 #include "LogWrapper.h"
 #include "ProducerConsumerTemplate.h"
 #include "numbertostring.h"
 #include "kcommonfunction.h"
-using namespace kk;
+#include "ktimer.h"
+//using namespace kk;
