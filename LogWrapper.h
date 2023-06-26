@@ -13,8 +13,6 @@
 #include <ctime>
 #include <iomanip>
 #include <map>
-using namespace std;
-using namespace chrono;
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
@@ -23,9 +21,13 @@ using namespace chrono;
 #include "spdlog/pattern_formatter.h"
 #include "spdlog/sinks/stdout_sinks.h"
 #include "spdlog/common.h"
-using namespace spdlog;
 #include "ktime.h"
+#include "kfile.h"
+#include "kcommonfunction.h"
 #include "SpdLogWrapper.h"
+using namespace std;
+using namespace chrono;
+using namespace spdlog;
 
 
 //#define SIZE_100M           (1024 * 1024 * 100)  //redmine 上传文件限制最大50M，所以由100M改成49M
@@ -35,14 +37,14 @@ using namespace spdlog;
 //#define LOG_WARN   spd::get("log")->warn
 //#define LOG_ERROR  LOG_ERROR
 
-
+#if 0
 #define LOG_ERROR(log_format, ...)                 LOGGERNAME_ERROR("default_logger",      log_format, ##__VA_ARGS__)
 #define LOG_WARN(log_format, ...)                  LOGGERNAME_WARN("default_logger",       log_format, ##__VA_ARGS__)
 #define LOG_INFO(log_format, ...)                  LOGGERNAME_INFO("default_logger",       log_format, ##__VA_ARGS__)
 #define LOG_DEBUG(log_format, ...)                 LOGGERNAME_DEBUG("default_logger",      log_format, ##__VA_ARGS__)
 #define LOG_TRACE(log_format, ...)                 LOGGERNAME_TRACE("default_logger",      log_format, ##__VA_ARGS__)
 #define LOG_TEMP(log_format, ...)                  LOGGERNAME_INFO("temp_logger",          log_format, ##__VA_ARGS__)
-
+#endif
 
 //#define GUI_FORMAT(log_format, qt_format) std::string(log_format).append(qt_format).c_str()
 
@@ -56,21 +58,18 @@ using namespace spdlog;
 inline void WriteLogHeader(const string& loggername, const filename_t& filename, std::FILE* file_stream, const string& log_pattern);
 
 /**  */
-inline int InitLog(const string& root_log_dir, spdlog::level::level_enum log_level)
+inline std::shared_ptr<spdlog::logger> InitLog(const string& root_log_dir, spdlog::level::level_enum log_level)
 {
 	string default_log_path;
-	string temp_log_path;
 
 	string date = KTime<>::GetDate(KTime<>::GetNowDateTime());
 	string time = KTime<>::GetTime(KTime<>::GetNowDateTime());
 	default_log_path = root_log_dir + "/" + date + "/" + date + "-" + time;
-	temp_log_path = default_log_path;
 
 	KFile::CreateDir(default_log_path);
-	KFile::CreateDir(temp_log_path);
 
-	default_log_path += "/drawbloodrobot.log";
-	temp_log_path += "/drawbloodrobot_temp.log";
+	default_log_path += "/" + GetProcessName() + ".log";
+
 	const string  log_pattern("[%i-%t-%Y-%m-%d %H:%M:%S.%e] [%l] %v");
 
 	SpdlogInit();
@@ -78,12 +77,11 @@ inline int InitLog(const string& root_log_dir, spdlog::level::level_enum log_lev
 	bool is_async = true;
 	bool is_daily = true;
 	std::shared_ptr<spdlog::logger>  default_logger = CreateLogger("default_logger", true, true, is_async, is_daily, false, default_log_path, log_level, log_pattern, [log_pattern](const filename_t& filename, std::FILE* file_stream) {WriteLogHeader("default_logger", filename, file_stream, log_pattern); });
-	std::shared_ptr<spdlog::logger>  temp_logger = CreateLogger("temp_logger", true, true, is_async, is_daily, false, temp_log_path, log_level, log_pattern, [log_pattern](const filename_t& filename, std::FILE* file_stream) {WriteLogHeader("temp_logger", filename, file_stream, log_pattern); });
 
 	//spdlog::set([](const std::string &msg) { spdlog::get("console")->error("*** LOGGER ERROR ***: {}", msg); });
 	//spdlog::get("console")->info("some invalid message to trigger an error {}{}{}{}", 3);
 
-	return 0;
+	return default_logger;
 }
 
 inline void FlushLog()

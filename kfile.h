@@ -12,9 +12,10 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include "CodeFormat.h"
 using namespace std;
 namespace fs = std::filesystem;
-#include "kcommonfunction.h"
+
 
 struct KFile
 {
