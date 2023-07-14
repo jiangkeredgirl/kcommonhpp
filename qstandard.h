@@ -40,5 +40,9 @@
 #include <QTreeWidgetItem>
 #include <QSettings>
 #include <QMdiArea>
+#include <QSplitter>
+#include <QPointF>
+#include <QVector3D>
+#include <QPlainTextEdit>
 
 #endif // QSTANDARD_H

@@ -22,6 +22,7 @@ struct KFile
 	string file_name;       //< 文件名 "file.txt"
 	string relative_path;	//< 文件相对路径 "D:\file.txt"
 	string absolute_path;   //< 文件绝对路径 ".\file.txt"
+	string file_stem;       //< 文件名不带后缀 "file"
 	string file_exten;      //< 文件扩展名 ".txt" 
 	string parent_path;     //< 上级目录
 	bool is_directory;      //< 是否是文件夹
@@ -38,14 +39,15 @@ struct KFile
 	explicit KFile(const string& file_path)
 	{
 		std::filesystem::path fs_path(file_path);
-		file_name = fs_path.filename().string();
-		relative_path = fs_path.relative_path().string();
-		absolute_path = std::filesystem::absolute(fs_path).string();
-		file_exten = fs_path.extension().string();
-		parent_path = fs_path.parent_path().string();
-		is_directory = std::filesystem::is_directory(fs_path);
+		file_name      = fs_path.filename().string();
+		relative_path  = fs_path.relative_path().string();
+		absolute_path  = std::filesystem::absolute(fs_path).string();
+		file_stem      = fs_path.stem().string();
+		file_exten     = fs_path.extension().string();
+		parent_path    = fs_path.parent_path().string();
+		is_directory   = std::filesystem::is_directory(fs_path);
 		std::error_code ec;
-		file_size = std::filesystem::file_size(fs_path, ec);
+		file_size      = std::filesystem::file_size(fs_path, ec);
 		if (ec)
 		{
 			std::cout << __FILE__ << utf8(fs_path.string()) << " : " << ec.message() << '\n';
@@ -57,13 +59,14 @@ struct KFile
 	}
 	explicit KFile(const std::filesystem::path& fs_path)
 	{
-		file_name = fs_path.filename().string();
-		relative_path = fs_path.relative_path().string();
-		absolute_path = std::filesystem::absolute(fs_path).string();
-		file_exten = fs_path.extension().string();
-		is_directory = std::filesystem::is_directory(fs_path);
+		file_name       = fs_path.filename().string();
+		relative_path   = fs_path.relative_path().string();
+		absolute_path   = std::filesystem::absolute(fs_path).string();
+		file_stem       = fs_path.stem().string();
+		file_exten      = fs_path.extension().string();
+		is_directory    = std::filesystem::is_directory(fs_path);
 		std::error_code ec;
-		file_size = std::filesystem::file_size(fs_path, ec);
+		file_size       = std::filesystem::file_size(fs_path, ec);
 		if (ec)
 		{
 			std::cout << __FILE__ << utf8(fs_path.string()) << " : " << ec.message() << '\n';
