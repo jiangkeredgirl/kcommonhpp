@@ -44,5 +44,8 @@
 #include <QPointF>
 #include <QVector3D>
 #include <QPlainTextEdit>
+#include <QToolBar>
+#include <QStackedLayout>
+#include <QMimeData>
 
 #endif // QSTANDARD_H

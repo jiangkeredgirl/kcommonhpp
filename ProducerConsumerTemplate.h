@@ -43,7 +43,7 @@ public:
 		if (m_consumer_thread.joinable())
 		{
 			{
-				lock_guard<mutex> listLock(m_data_list_mutex);
+				lock_guard<mutex> lock(m_data_list_mutex);
 				m_data_list.push_back(data);
 			}
 			m_consumer_condition.notify_one();
@@ -58,6 +58,15 @@ public:
 	int GetDataListSize()
 	{
 		return m_data_list.size();
+	}
+	/**
+	 * 清空数据列表.
+	 */
+	int DataListClear()
+	{
+		lock_guard<mutex> lock(m_data_list_mutex);
+		m_data_list.clear();
+		return 0;
 	}
 	/**
 	 * 关闭生产-消费线程.
