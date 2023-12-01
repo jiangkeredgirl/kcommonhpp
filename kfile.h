@@ -34,11 +34,21 @@ struct KFile
 	}
 	explicit KFile(const char* file_path)
 	{
-		KFile(string(file_path));
+		std::filesystem::path fs_path(/*std::filesystem::u8path*/(file_path));
+		FileParse(fs_path);
 	}
 	explicit KFile(const string& file_path)
 	{
-		std::filesystem::path fs_path(file_path);
+		std::filesystem::path fs_path(/*std::filesystem::u8path*/(file_path));
+		FileParse(fs_path);
+	}
+	explicit KFile(const std::filesystem::path& fs_path)
+	{
+		FileParse(/*std::filesystem::u8path*/(fs_path.string()));
+	}
+private:
+	void FileParse(const std::filesystem::path& fs_path)
+	{
 		file_name      = fs_path.filename().string();
 		relative_path  = fs_path.relative_path().string();
 		absolute_path  = std::filesystem::absolute(fs_path).string();
@@ -50,32 +60,27 @@ struct KFile
 		file_size      = std::filesystem::file_size(fs_path, ec);
 		if (ec)
 		{
-			std::cout << __FILE__ << utf8(fs_path.string()) << " : " << ec.message() << '\n';
+			std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path.string()
+				/*<< " utf8:" << utf8(fs_path.string())*/ << " : " << utf8(ec.message()) << '\n';
 		}
 		else
 		{
-			std::cout << __FILE__ << utf8(fs_path.string()) << " size = " << HumanReadable{ std::uintmax_t(file_size) } << '\n';
+#if 0
+			std::cout << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path.string()
+				/*<< " utf8:" << utf8(fs_path.string())*/ << " size = " << HumanReadable{ std::uintmax_t(file_size) } << '\n';
+
+			std::cout << __FILE__ << " " << __LINE__ << " " << "file_name:" << file_name
+				/*<< " utf8:" << utf8(file_name)*/ << '\n';
+			std::cout << __FILE__ << " " << __LINE__ << " " << "relative_path:" << relative_path
+				/*<< " utf8:" << utf8(relative_path)*/ << '\n';
+			std::cout << __FILE__ << " " << __LINE__ << " " << "absolute_path:" << absolute_path
+				/*<< " utf8:" << utf8(absolute_path)*/ << '\n';
+			std::cout << __FILE__ << " " << __LINE__ << " " << "parent_path:" << parent_path
+				/*<< " utf8:" << utf8(parent_path)*/ << '\n';
+#endif
 		}
 	}
-	explicit KFile(const std::filesystem::path& fs_path)
-	{
-		file_name       = fs_path.filename().string();
-		relative_path   = fs_path.relative_path().string();
-		absolute_path   = std::filesystem::absolute(fs_path).string();
-		file_stem       = fs_path.stem().string();
-		file_exten      = fs_path.extension().string();
-		is_directory    = std::filesystem::is_directory(fs_path);
-		std::error_code ec;
-		file_size       = std::filesystem::file_size(fs_path, ec);
-		if (ec)
-		{
-			std::cout << __FILE__ << utf8(fs_path.string()) << " : " << ec.message() << '\n';
-		}
-		else
-		{
-			std::cout << __FILE__ << utf8(fs_path.string()) << " size = " << HumanReadable{ std::uintmax_t(file_size) } << '\n';
-		}
-	}
+public:
 	struct HumanReadable
 	{
 		std::uintmax_t size{};
@@ -99,12 +104,16 @@ struct KFile
 		bool is_success = std::filesystem::create_directories(fs_path.parent_path());
 		if (ec)
 		{
-			std::cout << __FILE__ << fs_path << " : " << ec.message() << '\n';
+			std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path.string()
+				/*<< " utf8:" << utf8(fs_path.string())*/ << " : " << utf8(ec.message()) << '\n';
 		}
 		else
 		{
 			error_code = 0;
-			std::cout << __FILE__ << fs_path << " success created" << '\n';
+#if 0
+			std::cout << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path.string()
+				/*<< " utf8:" << utf8(fs_path.string())*/ << " success created" << '\n';
+#endif
 		}
 		return error_code;
 	}
@@ -115,12 +124,16 @@ struct KFile
 		std::filesystem::create_directories(dir_path);
 		if (ec)
 		{
-			std::cout << __FILE__ << dir_path << " : " << ec.message() << '\n';
+			std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << dir_path
+				/*<< " utf8:" << utf8(dir_path)*/ << " : " << utf8(ec.message()) << '\n';
 		}
 		else
 		{
 			error_code = 0;
-			std::cout << __FILE__ << dir_path << " success created" << '\n';
+#if 0
+			std::cout << __FILE__ << " " << __LINE__ << " " << "file path:" << dir_path
+				/*<< " utf8:" << utf8(dir_path)*/ << " success created" << '\n';
+#endif
 		}
 		return error_code;
 	}
@@ -220,7 +233,24 @@ struct KFile
 	{
 		int error_code = -1;
 		FILE* file = nullptr;
-		error_code = fopen_s(&file, filename.c_str(), "wb");
+		error_code = fopen_s(&file, filename.c_str(), "wb+");
+		if (error_code == 0)
+		{
+			size_t write_size = fwrite(file_content.c_str(), sizeof(char), file_content.size(), file);
+			fflush(file);
+			if (write_size == file_content.size())
+			{
+				error_code = 0;
+			}
+			fclose(file);
+		}
+		return error_code;
+	}
+	inline static int WriteFileAppend(__in const string& filename, __out const string& file_content)
+	{
+		int error_code = -1;
+		FILE* file = nullptr;
+		error_code = fopen_s(&file, filename.c_str(), "ab+");
 		if (error_code == 0)
 		{
 			size_t write_size = fwrite(file_content.c_str(), sizeof(char), file_content.size(), file);

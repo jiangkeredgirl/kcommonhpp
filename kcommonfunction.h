@@ -52,3 +52,41 @@ inline string  GetProcessName()
 }
 #endif
 
+/**
+ * 小数点精度.
+ */
+inline double Precision(double value, int precision)
+{
+    stringstream ss;
+    ss << fixed << setprecision(precision) << value;
+    return stod(ss.str());
+}
+
+inline string Precision(string double_value, int precision)
+{ 
+    return to_string(Precision(stod(double_value), precision));
+}
+
+template <typename T>
+inline std::string to_string_with_precision(const T a_value, const int precision = 6)
+{
+    std::ostringstream out;
+    out << std::fixed << std::setprecision(precision) << a_value;
+    return out.str();
+}
+
+template <typename T>
+inline std::string to_string_with_precision(const T a_value, const int precision, const int set)
+{
+    std::ostringstream out;
+    out << std::setw(set) << std::fixed << std::setprecision(precision) << a_value;
+    return out.str();
+}
+
+template <typename T>
+inline std::string to_string_with_setw(const T a_value, const int set)
+{
+    std::ostringstream out;
+    out << std::setw(set) << setfill('0') << std::fixed << a_value;
+    return out.str();
+}

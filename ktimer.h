@@ -45,21 +45,21 @@ public:
 				{
 					if (m_timer_cancel)
 					{
-						printf("timer canceled\n");
+						//printf("timer canceled\n");
 						break;
 					}
 					m_timer_task.Open([](const shared_ptr<int*>& event)->int
 						{
-							printf("timer task executing\n");
+							//printf("timer task executing\n");
 							FuncType* ptask = (FuncType*)(*event);
 							//ptask();
 							(*ptask)();
-							printf("timer task execute completed\n");
+							//printf("timer task execute completed\n");
 							return 0;
 						});
 					if (m_timer_cancel)
 					{
-						printf("timer canceled\n");
+						//printf("timer canceled\n");
 						break;
 					}
 					std::cv_status status;
@@ -69,12 +69,12 @@ public:
 					{
 						if (m_timer_cancel)
 						{
-							printf("timer canceled\n");
+							//printf("timer canceled\n");
 							break;
 						}
 						else
 						{
-							printf("timer exception regard as timeout\n");
+							//printf("timer exception regard as timeout\n");
 							goto timeout;
 						}
 					}
@@ -85,7 +85,7 @@ public:
 						printf("timer arrived and task executing\n");
 						std::thread([ptask]() { /*task()*/(*ptask)(); printf("timer task execute completed\n"); }).detach();
 #else
-						printf("timer arrived and add task\n");
+						//printf("timer arrived and add task\n");
 						int* temp_ptask = (int*)(ptask);
 						shared_ptr <int*> event = std::make_shared<int*>(temp_ptask);
 						m_timer_task.Producer(event);
@@ -96,7 +96,7 @@ public:
 	}
 	void CancelTimer()
 	{
-		printf("cancel timer\n");
+		//printf("cancel timer\n");
 		m_timer_cancel = true;
 		m_timer_condition.notify_all();
 		if (m_timer_thread.joinable())
@@ -107,7 +107,7 @@ public:
 	}
 	int Sleep(int after)
 	{
-		printf("sleeping\n");
+		//printf("sleeping\n");
 		m_sleep_cancel = false;
 		std::cv_status status;
 		unique_lock<mutex> lock(m_sleep_mutex);
@@ -116,24 +116,24 @@ public:
 		{
 			if (m_sleep_cancel)
 			{
-				printf("sleep canceled\n");
+				//printf("sleep canceled\n");
 			}
 			else
 			{
-				printf("sleep exception regard as timeout\n");
+				//printf("sleep exception regard as timeout\n");
 				goto timeout;
 			}
 		}
 		else if (status == std::cv_status::timeout)
 		{
-		timeout:
-			printf("sleep completed\n");
+		timeout:;
+			//printf("sleep completed\n");
 		}
 		return 0;
 	}
 	int CancelSleep()
 	{
-		printf("cancel sleep\n");
+		//printf("cancel sleep\n");
 		m_sleep_cancel = true;
 		m_sleep_condition.notify_all();
 		return 0;
