@@ -79,7 +79,7 @@ template <typename T>
 inline std::string to_string_with_precision(const T a_value, const int precision, const int set)
 {
     std::ostringstream out;
-    out << std::setw(set) << std::fixed << std::setprecision(precision) << a_value;
+    out << std::setprecision(precision) << std::setw(set) << setfill('0') << std::fixed << a_value;
     return out.str();
 }
 
@@ -89,4 +89,15 @@ inline std::string to_string_with_setw(const T a_value, const int set)
     std::ostringstream out;
     out << std::setw(set) << setfill('0') << std::fixed << a_value;
     return out.str();
+}
+
+inline double to_double(const std::string& valueAsString, const int precision = 3, const int set = 6)
+{
+    istringstream totalSString(valueAsString);
+    double valueAsDouble = 0;
+    // maybe use some manipulators
+    totalSString >> std::setprecision(precision) >> std::setw(set) >> setfill('0') >> std::fixed >> valueAsDouble;
+    if (!totalSString)
+        throw std::runtime_error("Error converting to double");
+    return valueAsDouble;
 }

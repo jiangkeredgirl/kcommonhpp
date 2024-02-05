@@ -47,5 +47,6 @@
 #include <QToolBar>
 #include <QStackedLayout>
 #include <QMimeData>
+#include <QProcess>
 
 #endif // QSTANDARD_H

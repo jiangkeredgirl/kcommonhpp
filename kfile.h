@@ -169,7 +169,7 @@ public:
 		}
 		return error_code;
 	}
-	inline static int DeleteDir(const string& dir_path)
+	inline static int DelDir(const string& dir_path)
 	{
 		int error_code = 1;
 		std::uintmax_t deleted_number = std::filesystem::remove_all(dir_path);
@@ -179,7 +179,7 @@ public:
 		}
 		return error_code;
 	}
-	inline static int DeleteFile(const string& file_path)
+	inline static int DelFile(const string& file_path)
 	{
 		int error_code = 1;
 		bool is_deleted = std::filesystem::remove(file_path);
@@ -329,6 +329,18 @@ public:
 		}
 		return fullpath;
 	}
+	inline static string CheckDoubleName(const string& path_name)
+	{
+		string new_path_name = path_name;	
+		int index = 0;
+		while (KFile::IsExist(new_path_name))
+		{
+			++index;
+			new_path_name = KFile(path_name).parent_path + "\\" + KFile(path_name).file_stem + "_" + to_string(index) + KFile(path_name).file_exten;
+		}
+		return new_path_name;
+	}
+
 };
 
 struct KDirectory : public KFile
