@@ -34,18 +34,35 @@ struct KFile
 	}
 	explicit KFile(const char* file_path)
 	{
-		std::filesystem::path fs_path(/*std::filesystem::u8path*/(file_path));
-		FileParse(fs_path);
+		if (isUTF8(file_path))
+		{
+			std::filesystem::path fs_path(std::filesystem::u8path(file_path));
+			FileParse(fs_path);
+		}
+		else
+		{
+			std::filesystem::path fs_path(file_path);
+			FileParse(fs_path);
+		}
 	}
 	explicit KFile(const string& file_path)
 	{
-		std::filesystem::path fs_path(/*std::filesystem::u8path*/(file_path));
-		FileParse(fs_path);
+		if (isUTF8(file_path))
+		{
+			std::filesystem::path fs_path(std::filesystem::u8path(file_path));
+			FileParse(fs_path);
+		}
+		else
+		{
+			std::filesystem::path fs_path(file_path);
+			FileParse(fs_path);
+		}
 	}
 	explicit KFile(const std::filesystem::path& fs_path)
 	{
-		FileParse(/*std::filesystem::u8path*/(fs_path.string()));
+		FileParse(fs_path);
 	}
+
 private:
 	void FileParse(const std::filesystem::path& fs_path)
 	{
@@ -60,23 +77,16 @@ private:
 		file_size      = std::filesystem::file_size(fs_path, ec);
 		if (ec)
 		{
-			std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path.string()
-				/*<< " utf8:" << utf8(fs_path.string())*/ << " : " << utf8(ec.message()) << '\n';
+			std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " : " << ec.message() << endl;
 		}
 		else
 		{
-#if 0
-			std::cout << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path.string()
-				/*<< " utf8:" << utf8(fs_path.string())*/ << " size = " << HumanReadable{ std::uintmax_t(file_size) } << '\n';
-
-			std::cout << __FILE__ << " " << __LINE__ << " " << "file_name:" << file_name
-				/*<< " utf8:" << utf8(file_name)*/ << '\n';
-			std::cout << __FILE__ << " " << __LINE__ << " " << "relative_path:" << relative_path
-				/*<< " utf8:" << utf8(relative_path)*/ << '\n';
-			std::cout << __FILE__ << " " << __LINE__ << " " << "absolute_path:" << absolute_path
-				/*<< " utf8:" << utf8(absolute_path)*/ << '\n';
-			std::cout << __FILE__ << " " << __LINE__ << " " << "parent_path:" << parent_path
-				/*<< " utf8:" << utf8(parent_path)*/ << '\n';
+#if 1
+			std::cout << __FILE__ << " " << __LINE__ << " " << "file path:"     << fs_path << " size = " << HumanReadable{ std::uintmax_t(file_size) } << endl;
+			std::cout << __FILE__ << " " << __LINE__ << " " << "file_name:"     << file_name << endl;
+			std::cout << __FILE__ << " " << __LINE__ << " " << "relative_path:" << relative_path << endl;
+			std::cout << __FILE__ << " " << __LINE__ << " " << "absolute_path:" << absolute_path << endl;
+			std::cout << __FILE__ << " " << __LINE__ << " " << "parent_path:"   << parent_path << endl;
 #endif
 		}
 	}
@@ -98,41 +108,69 @@ public:
 	inline static int CreateDirByFile(const string& file_path)
 	{
 		int error_code = 1;
-		std::filesystem::path fs_path(file_path);
-		//fs_path.parent_path()会返回文件路径中的文件夹路径。
-		std::error_code ec;
-		bool is_success = std::filesystem::create_directories(fs_path.parent_path());
-		if (ec)
+		std::filesystem::path fs_path;
+		if (isUTF8(file_path))
 		{
-			std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path.string()
-				/*<< " utf8:" << utf8(fs_path.string())*/ << " : " << utf8(ec.message()) << '\n';
+			fs_path = std::filesystem::u8path(file_path);			
 		}
 		else
 		{
-			error_code = 0;
-#if 0
-			std::cout << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path.string()
-				/*<< " utf8:" << utf8(fs_path.string())*/ << " success created" << '\n';
-#endif
+			fs_path = file_path;			
 		}
+		do
+		{
+			std::error_code ec;
+			std::filesystem::file_size(fs_path, ec);
+			if (ec)
+			{
+				std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " : " << ec.message() << endl;
+				break;
+			}
+			//fs_path.parent_path()会返回文件路径中的文件夹路径。
+			//std::error_code ec;
+			if (fs_path.parent_path().empty())
+			{
+				std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " parent_path is null " << endl;
+				break;
+			}
+			bool is_success = std::filesystem::create_directories(fs_path.parent_path());
+			if (ec)
+			{
+				std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " : " << ec.message() << endl;
+			}
+			else
+			{
+				error_code = 0;
+#if 1
+				std::cout << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " success created" << endl;
+#endif
+			}
+		} while (0);
 		return error_code;
 	}
 	inline static int CreateDir(const string& dir_path)
 	{
 		int error_code = 1;
+		std::filesystem::path fs_path;
+		if (isUTF8(dir_path))
+		{
+			fs_path = std::filesystem::u8path(dir_path);
+		}
+		else
+		{
+			fs_path = dir_path;
+		}
 		std::error_code ec;
-		std::filesystem::create_directories(dir_path);
+		std::filesystem::create_directories(fs_path);
 		if (ec)
 		{
-			std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << dir_path
-				/*<< " utf8:" << utf8(dir_path)*/ << " : " << utf8(ec.message()) << '\n';
+			std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " : " << ec.message() << endl;
 		}
 		else
 		{
 			error_code = 0;
-#if 0
-			std::cout << __FILE__ << " " << __LINE__ << " " << "file path:" << dir_path
-				/*<< " utf8:" << utf8(dir_path)*/ << " success created" << '\n';
+#if 1
+			std::cout << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " success created" << endl;
 #endif
 		}
 		return error_code;
@@ -140,12 +178,19 @@ public:
 	inline static int CreateFileCover(const string& file_path)
 	{
 		int error_code = 0;
+		std::filesystem::path fs_path;
+		if (isUTF8(file_path))
+		{
+			fs_path = std::filesystem::u8path(file_path);
+		}
+		else
+		{
+			fs_path = file_path;
+		}
 		error_code = CreateDirByFile(file_path);
 		if (error_code == 0)
 		{
-			std::filesystem::path fs_path(file_path);
-			string filename = fs_path.filename().string();
-			ofstream file(file_path, std::ios::out | std::ios::trunc);
+			ofstream file(fs_path, std::ios::out | std::ios::trunc);
 			if (!file.is_open())
 			{
 				error_code = 1;
@@ -156,12 +201,19 @@ public:
 	inline static int CreateFileAppend(const string& file_path)
 	{
 		int error_code = 0;
+		std::filesystem::path fs_path;
+		if (isUTF8(file_path))
+		{
+			fs_path = std::filesystem::u8path(file_path);
+		}
+		else
+		{
+			fs_path = file_path;
+		}
 		error_code = CreateDirByFile(file_path);
 		if (error_code == 0)
 		{
-			std::filesystem::path fs_path(file_path);
-			string filename = fs_path.filename().string();
-			ofstream file(file_path, std::ios::out | std::ios::app);
+			ofstream file(fs_path, std::ios::out | std::ios::app);
 			if (!file.is_open())
 			{
 				error_code = 1;
@@ -359,8 +411,15 @@ struct KDirectory : public KFile
 			{
 				break;
 			}
-
-			std::filesystem::path fs_path(root_path);
+			std::filesystem::path fs_path;
+			if (isUTF8(root_path))
+			{
+				fs_path = std::filesystem::u8path(root_path);
+			}
+			else
+			{
+				fs_path = root_path;
+			}
 			KFile file(fs_path);
 			dir.file_name = file.file_name;
 			dir.relative_path = file.relative_path;
