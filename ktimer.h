@@ -183,4 +183,8 @@ private:
 	ProducerConsumerTemplate<int*> m_timer_task;
 };
 
+using KSecondTimer = KTimer<std::chrono::seconds>;
+using KMilliTimer = KTimer<std::chrono::milliseconds>;
+using KMicroTimer = KTimer<std::chrono::microseconds>;
+
 #endif // KTIMER_H

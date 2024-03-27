@@ -52,7 +52,7 @@ void kfileTest()
 
 void ktimerTest()
 {
-	KTimer<> ktimer;
+	KMilliTimer ktimer;
 	std::cout << " first elapsed time is " << ktimer.ClockElapsed() << std::endl;
 	ktimer.Sleep(100);
 	std::cout << " second elapsed time is " << ktimer.ClockElapsed() << std::endl;
