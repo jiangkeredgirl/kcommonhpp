@@ -29,5 +29,11 @@
     <ClInclude Include="..\kfile.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\ktime.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ktimer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

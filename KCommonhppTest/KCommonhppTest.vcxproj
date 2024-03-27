@@ -25,6 +25,8 @@
     <ClInclude Include="..\CodeFormat.h" />
     <ClInclude Include="..\cstandard.h" />
     <ClInclude Include="..\kfile.h" />
+    <ClInclude Include="..\ktime.h" />
+    <ClInclude Include="..\ktimer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -79,13 +81,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>..\;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)buildout\$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)buildtmp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>..\;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)buildout\$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)buildtmp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>

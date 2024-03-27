@@ -2,23 +2,22 @@
 //
 
 #include <iostream>
-#include "..\CodeFormat.h"
-#include"..\kfile.h"
+#include "CodeFormat.h"
+#include "kfile.h"
+#include "ktimer.h"
 
-
-int main(int argc, char* argv[]) 
+void kfileTest()
 {
-	std::cout << "Hello World!\n";
 	std::string utf8Str = "这是一个UTF-8编码的字符串";
 	std::string nonUTF8Str = "This is not a UTF-8 encoded string";
 
 	if (isUTF8(utf8Str))
 	{
-		std::cout << std::filesystem::u8path(utf8Str)    << " is " << "UTF-8 encoded" << std::endl;
+		std::cout << std::filesystem::u8path(utf8Str) << " is " << "UTF-8 encoded" << std::endl;
 	}
 	else
 	{
-		std::cout << utf8Str    << " is " << "not UTF-8 encoded" << std::endl;
+		std::cout << utf8Str << " is " << "not UTF-8 encoded" << std::endl;
 	}
 	if (isUTF8(nonUTF8Str))
 	{
@@ -46,9 +45,30 @@ int main(int argc, char* argv[])
 		std::cout << nonUTF8Str << " is " << "not UTF-8 encoded" << std::endl;
 	}
 
-	KFile kfile("随便一个中文路径");	
+	KFile kfile("随便一个中文路径");
 	KFile::CreateDirByFile("随便一个中文路径");
 	KFile::CreateDir("随便一个中文路径");
+}
+
+void ktimerTest()
+{
+	KTimer<> ktimer;
+	std::cout << " first elapsed time is " << ktimer.ClockElapsed() << std::endl;
+	ktimer.Sleep(100);
+	std::cout << " second elapsed time is " << ktimer.ClockElapsed() << std::endl;
+	ktimer.Sleep(1000);
+	std::cout << " third elapsed time is " << ktimer.ClockElapsed() << std::endl;
+}
+
+int main(int argc, char* argv[]) 
+{
+	std::cout << "Hello World!\n";
+
+	std::cout << "kfileTest!\n";
+	kfileTest();
+
+	std::cout << "ktimerTest!\n";
+	ktimerTest();
 
 	return 0;
 }

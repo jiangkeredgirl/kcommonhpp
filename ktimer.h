@@ -35,7 +35,7 @@ public:
 	template <class callable, class... arguments>
 	void StartTimer(int after, bool is_cycle, callable&& f, arguments&&... args)
 	{
-		typedef std::function<typename std::result_of<callable(arguments...)>::type()> FuncType;
+		typedef std::function<typename std::invoke_result<callable(arguments...)>::type()> FuncType;
 		CancelTimer();
 		m_timer_cancel = false;
 		FuncType* ptask = new FuncType(std::bind(std::forward<callable>(f), std::forward<arguments>(args)...));
@@ -138,22 +138,36 @@ public:
 		m_sleep_condition.notify_all();
 		return 0;
 	}
+
+public:
+	__int64 ClockElapsed()
+	{
+		time_t nowtime = 0;
+		if (m_clockstart_time == 0)
+		{
+			nowtime = ClockStart();
+		}
+		else
+		{
+			nowtime = KTime<TimeUnit/*std::chrono::microseconds*/>::GetNowDateTime();
+		}
+		m_clockelapsed_time = nowtime - m_clockstart_time;
+		m_clockstart_time = nowtime;
+		return m_clockelapsed_time;
+	}
+	string ClockElapsedStr()
+	{
+		return KTime<TimeUnit>::GetClockTime(ClockElapsed());
+	}
+private:
 	__int64 ClockStart()
 	{
 		m_clockstart_time = KTime<TimeUnit/*std::chrono::microseconds*/>::GetNowDateTime();
 		return m_clockstart_time;
 	}
-	__int64 ClockElapsed()
-	{
-		return KTime<TimeUnit/*std::chrono::microseconds*/>::GetNowDateTime() - m_clockstart_time;
-	}
 	string ClockStartStr()
 	{
 		return KTime<TimeUnit>::GetDateTime(ClockStart());
-	}
-	string ClockElapsedStr()
-	{
-		return KTime<TimeUnit>::GetClockTime(ClockElapsed());
 	}
 
 private:
@@ -164,7 +178,8 @@ private:
 	mutex                 m_sleep_mutex;
 	condition_variable    m_sleep_condition;
 	atomic<bool>          m_sleep_cancel;
-	time_t                m_clockstart_time;
+	time_t                m_clockstart_time   = 0;
+	time_t                m_clockelapsed_time = 0;
 	ProducerConsumerTemplate<int*> m_timer_task;
 };
 
