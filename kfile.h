@@ -34,28 +34,20 @@ struct KFile
 	}
 	explicit KFile(const char* file_path)
 	{
-		if (isUTF8(file_path))
+		std::filesystem::path fs_path(utf8tolocal(file_path));
+		FileParse(fs_path);
+		if (isutf8(file_path))
 		{
-			std::filesystem::path fs_path(std::filesystem::u8path(file_path));
-			FileParse(fs_path);
-		}
-		else
-		{
-			std::filesystem::path fs_path(file_path);
-			FileParse(fs_path);
+			UTF8();
 		}
 	}
 	explicit KFile(const string& file_path)
 	{
-		if (isUTF8(file_path))
+		std::filesystem::path fs_path(utf8tolocal(file_path));
+		FileParse(fs_path);
+		if (isutf8(file_path))
 		{
-			std::filesystem::path fs_path(std::filesystem::u8path(file_path));
-			FileParse(fs_path);
-		}
-		else
-		{
-			std::filesystem::path fs_path(file_path);
-			FileParse(fs_path);
+			UTF8();
 		}
 	}
 	explicit KFile(const std::filesystem::path& fs_path)
@@ -63,18 +55,18 @@ struct KFile
 		FileParse(fs_path);
 	}
 
-private:
+public:
 	void FileParse(const std::filesystem::path& fs_path)
 	{
-		file_name      = fs_path.filename().string();
-		relative_path  = fs_path.relative_path().string();
-		absolute_path  = std::filesystem::absolute(fs_path).string();
-		file_stem      = fs_path.stem().string();
-		file_exten     = fs_path.extension().string();
-		parent_path    = fs_path.parent_path().string();
-		is_directory   = std::filesystem::is_directory(fs_path);
+		file_name     = fs_path.filename().string();
+		relative_path = fs_path.relative_path().string();
+		absolute_path = std::filesystem::absolute(fs_path).string();
+		file_stem     = fs_path.stem().string();
+		file_exten    = fs_path.extension().string();
+		parent_path   = fs_path.parent_path().string();
+		is_directory  = std::filesystem::is_directory(fs_path);
 		std::error_code ec;
-		file_size      = std::filesystem::file_size(fs_path, ec);
+		file_size = std::filesystem::file_size(fs_path, ec);
 		if (ec)
 		{
 			std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " : " << ec.message() << endl;
@@ -82,13 +74,22 @@ private:
 		else
 		{
 #if 1
-			std::cout << __FILE__ << " " << __LINE__ << " " << "file path:"     << fs_path << " size = " << HumanReadable{ std::uintmax_t(file_size) } << endl;
-			std::cout << __FILE__ << " " << __LINE__ << " " << "file_name:"     << file_name << endl;
+			std::cout << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " size = " << HumanReadable{ std::uintmax_t(file_size) } << endl;
+			std::cout << __FILE__ << " " << __LINE__ << " " << "file_name:" << file_name << endl;
 			std::cout << __FILE__ << " " << __LINE__ << " " << "relative_path:" << relative_path << endl;
 			std::cout << __FILE__ << " " << __LINE__ << " " << "absolute_path:" << absolute_path << endl;
-			std::cout << __FILE__ << " " << __LINE__ << " " << "parent_path:"   << parent_path << endl;
+			std::cout << __FILE__ << " " << __LINE__ << " " << "parent_path:" << parent_path << endl;
 #endif
-		}
+		}		
+	}
+	void UTF8()
+	{
+		file_name     = localtoutf8(file_name);
+		relative_path = localtoutf8(relative_path);
+		absolute_path = localtoutf8(absolute_path);
+		file_stem     = localtoutf8(file_stem);
+		file_exten    = localtoutf8(file_exten);
+		parent_path   = localtoutf8(parent_path);
 	}
 public:
 	struct HumanReadable
@@ -105,18 +106,11 @@ public:
 		return i == 0 ? os : os << "B (" << hr.size << ')';
 	}
 	};
+public:
 	inline static int CreateDirByFile(const string& file_path)
 	{
 		int error_code = 1;
-		std::filesystem::path fs_path;
-		if (isUTF8(file_path))
-		{
-			fs_path = std::filesystem::u8path(file_path);			
-		}
-		else
-		{
-			fs_path = file_path;			
-		}
+		std::filesystem::path fs_path = utf8tolocal(file_path);
 		do
 		{
 			std::error_code ec;
@@ -151,15 +145,7 @@ public:
 	inline static int CreateDir(const string& dir_path)
 	{
 		int error_code = 1;
-		std::filesystem::path fs_path;
-		if (isUTF8(dir_path))
-		{
-			fs_path = std::filesystem::u8path(dir_path);
-		}
-		else
-		{
-			fs_path = dir_path;
-		}
+		std::filesystem::path fs_path = utf8tolocal(dir_path);
 		std::error_code ec;
 		std::filesystem::create_directories(fs_path);
 		if (ec)
@@ -178,15 +164,7 @@ public:
 	inline static int CreateFileCover(const string& file_path)
 	{
 		int error_code = 0;
-		std::filesystem::path fs_path;
-		if (isUTF8(file_path))
-		{
-			fs_path = std::filesystem::u8path(file_path);
-		}
-		else
-		{
-			fs_path = file_path;
-		}
+		std::filesystem::path fs_path = utf8tolocal(file_path);
 		error_code = CreateDirByFile(file_path);
 		if (error_code == 0)
 		{
@@ -201,15 +179,7 @@ public:
 	inline static int CreateFileAppend(const string& file_path)
 	{
 		int error_code = 0;
-		std::filesystem::path fs_path;
-		if (isUTF8(file_path))
-		{
-			fs_path = std::filesystem::u8path(file_path);
-		}
-		else
-		{
-			fs_path = file_path;
-		}
+		std::filesystem::path fs_path = utf8tolocal(file_path);
 		error_code = CreateDirByFile(file_path);
 		if (error_code == 0)
 		{
@@ -224,7 +194,8 @@ public:
 	inline static int DelDir(const string& dir_path)
 	{
 		int error_code = 1;
-		std::uintmax_t deleted_number = std::filesystem::remove_all(dir_path);
+		std::filesystem::path fs_path = utf8tolocal(dir_path);
+		std::uintmax_t deleted_number = std::filesystem::remove_all(fs_path);
 		if (deleted_number > 0)
 		{
 			error_code = 0;
@@ -234,7 +205,8 @@ public:
 	inline static int DelFile(const string& file_path)
 	{
 		int error_code = 1;
-		bool is_deleted = std::filesystem::remove(file_path);
+		std::filesystem::path fs_path = utf8tolocal(file_path);
+		bool is_deleted = std::filesystem::remove(fs_path);
 		if (is_deleted)
 		{
 			error_code = 0;
@@ -243,11 +215,13 @@ public:
 	}
 	inline static bool IsDirectory(const string& dir_path)
 	{
-		return std::filesystem::is_directory(dir_path);
+		std::filesystem::path fs_path = utf8tolocal(dir_path);
+		return std::filesystem::is_directory(fs_path);
 	}
 	inline static bool IsExist(const string& file_path)
 	{
-		return std::filesystem::exists(file_path);
+		std::filesystem::path fs_path = utf8tolocal(file_path);
+		return std::filesystem::exists(fs_path);
 	}
 	inline static int ReadFile(__in const string& filename, __out string& file_content)
 	{
@@ -388,7 +362,8 @@ public:
 		while (KFile::IsExist(new_path_name))
 		{
 			++index;
-			new_path_name = KFile(path_name).parent_path + "\\" + KFile(path_name).file_stem + "_" + to_string(index) + KFile(path_name).file_exten;
+			KFile kfile(path_name);
+			new_path_name = kfile.parent_path + "\\" + kfile.file_stem + "_" + to_string(index) + kfile.file_exten;
 		}
 		return new_path_name;
 	}
@@ -411,52 +386,71 @@ struct KDirectory : public KFile
 			{
 				break;
 			}
-			std::filesystem::path fs_path;
-			if (isUTF8(root_path))
-			{
-				fs_path = std::filesystem::u8path(root_path);
-			}
-			else
-			{
-				fs_path = root_path;
-			}
+			std::filesystem::path fs_path = utf8tolocal(root_path);
+			std::cout << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << endl;
+			
 			KFile file(fs_path);
-			dir.file_name = file.file_name;
+			dir.file_name     = file.file_name;
 			dir.relative_path = file.relative_path;
 			dir.absolute_path = file.absolute_path;
-			dir.file_exten = file.file_exten;
-			dir.is_directory = file.is_directory;
-			dir.file_size = file.file_size;
+			dir.file_stem     = file.file_stem;
+			dir.file_exten    = file.file_exten;
+			dir.parent_path   = file.parent_path;
+			dir.is_directory  = file.is_directory;
+			dir.file_size     = file.file_size;
+			if (isutf8(root_path))
+			{
+				file.UTF8();
+			}
+			
 			for (auto& itr : std::filesystem::directory_iterator(fs_path))
 			{
 				if (itr.is_directory())
 				{
-					KDirectory sub_dirs;
-					FindFiles(itr.path().string(), sub_dirs);
+					KDirectory sub_dirs;	
+					string sub_root_path = itr.path().string();
+					if (isutf8(root_path))
+					{
+						sub_root_path = localtoutf8(sub_root_path);
+					}
+					FindFiles(sub_root_path, sub_dirs);
 					dir.sub_dirs.push_back(sub_dirs);
 				}
 				else if (itr.is_regular_file())
 				{
 					KFile file(itr.path());
+					if (isutf8(root_path))
+					{
+						file.UTF8();
+					}
 					dir.sub_files.push_back(file);
 				}
 			}
 		} while (false);
 		return 0;
 	}
-	inline static int FindOnlyFiles(const string& _root_path, list<KFile>& files)
+	inline static int FindOnlyFiles(const string& root_path, list<KFile>& files)
 	{
-		for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{ _root_path })
+		std::filesystem::path fs_path = utf8tolocal(root_path);
+		std::cout << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << endl;
+		
+		for (auto const& dir_entry : std::filesystem::recursive_directory_iterator(fs_path, std::filesystem::directory_options::skip_permission_denied))
 		{
 			if (dir_entry.is_regular_file())
 			{
 				KFile file;
-				file.file_name = dir_entry.path().filename().string();
+				file.file_name     = dir_entry.path().filename().string();
 				file.relative_path = dir_entry.path().string();
 				file.absolute_path = std::filesystem::absolute(dir_entry.path()).string();
-				file.file_exten = dir_entry.path().extension().string();
-				file.file_size = std::filesystem::file_size(dir_entry.path());
-				file.is_directory = std::filesystem::is_directory(dir_entry.path());
+				file.file_stem     = dir_entry.path().stem().string();
+				file.file_exten    = dir_entry.path().extension().string();
+				file.parent_path   = dir_entry.path().parent_path().string();
+				file.file_size     = std::filesystem::file_size(dir_entry.path());
+				file.is_directory  = std::filesystem::is_directory(dir_entry.path());			
+				if (isutf8(root_path))
+				{
+					file.UTF8();
+				}		
 				files.push_back(file);
 			}
 		}

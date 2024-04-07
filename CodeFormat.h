@@ -20,7 +20,7 @@ typedef  string tstring;
 
 
 
-inline bool isUTF8(const std::string& str)
+inline bool isutf8(const std::string& str)
 {
 	int i = 0;
 	while (i < str.length()) {
@@ -179,6 +179,26 @@ inline std::string /*gb2312_to_*/utf8(std::string const& strGb2312)
 
 	return "";
 
+}
+
+inline string utf8tolocal(const string& utf8_str)
+{
+	string localstr = utf8_str;
+	if (isutf8(localstr))
+	{
+		localstr = std::filesystem::u8path(localstr).string();
+	}
+	return localstr;
+}
+
+inline string localtoutf8(const string& localstr)
+{
+	string utf8_str = localstr;
+	if (!isutf8(utf8_str))
+	{
+		utf8_str = utf8(utf8_str);
+	}
+	return utf8_str;
 }
 
 inline std::string /*utf8_to_*/gb2312(std::string const& strUtf8)

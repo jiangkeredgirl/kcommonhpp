@@ -11,17 +11,22 @@ void kfileTest()
 	std::string utf8Str = "这是一个UTF-8编码的字符串";
 	std::string nonUTF8Str = "This is not a UTF-8 encoded string";
 
-	if (isUTF8(utf8Str))
+	if (isutf8(utf8Str))
 	{
 		std::cout << std::filesystem::u8path(utf8Str) << " is " << "UTF-8 encoded" << std::endl;
+		std::cout << std::filesystem::u8path(utf8Str).string() << " is " << "UTF-8 encoded" << std::endl;
+		std::cout <<             utf8tolocal(utf8Str) << " is " << "UTF-8 encoded" << std::endl;
+		std::cout <<                         utf8Str << " is " << "UTF-8 encoded" << std::endl;
 	}
 	else
 	{
 		std::cout << utf8Str << " is " << "not UTF-8 encoded" << std::endl;
 	}
-	if (isUTF8(nonUTF8Str))
+	if (isutf8(nonUTF8Str))
 	{
-		std::cout << std::filesystem::u8path(nonUTF8Str) << " is " << "UTF-8 encoded" << std::endl;
+		std::cout << std::filesystem::u8path(nonUTF8Str).string() << " is " << "UTF-8 encoded" << std::endl;
+		std::cout <<             utf8tolocal(nonUTF8Str) << " is " << "UTF-8 encoded" << std::endl;
+		std::cout <<                         nonUTF8Str << " is " << "UTF-8 encoded" << std::endl;
 	}
 	else
 	{
@@ -30,7 +35,7 @@ void kfileTest()
 
 	if (is_str_utf8(utf8Str.c_str()))
 	{
-		std::cout << std::filesystem::u8path(utf8Str) << " is " << "UTF-8 encoded" << std::endl;
+		std::cout << utf8tolocal(utf8Str) << " is " << "UTF-8 encoded" << std::endl;
 	}
 	else
 	{
@@ -38,7 +43,7 @@ void kfileTest()
 	}
 	if (is_str_utf8(nonUTF8Str.c_str()))
 	{
-		std::cout << std::filesystem::u8path(nonUTF8Str) << " is " << "UTF-8 encoded" << std::endl;
+		std::cout << utf8tolocal(nonUTF8Str) << " is " << "UTF-8 encoded" << std::endl;
 	}
 	else
 	{
@@ -48,6 +53,17 @@ void kfileTest()
 	KFile kfile("随便一个中文路径");
 	KFile::CreateDirByFile("随便一个中文路径");
 	KFile::CreateDir("随便一个中文路径");
+
+	list<KFile> files;
+	string folder_path = "E:/KFile测试文件夹";	
+	std::cout << "folder_path:" << utf8tolocal(folder_path) << endl;
+	KDirectory::FindOnlyFiles(folder_path, files);
+	for (auto file : files)
+	{
+		std::cout << "absolute_path:" << utf8tolocal(file.absolute_path) << endl;
+		std::cout << "  parent_path:" << utf8tolocal(file.parent_path) << endl;
+		std::cout << "    file_name:" << utf8tolocal(file.file_name) << endl;
+	}
 }
 
 void ktimerTest()
@@ -67,8 +83,8 @@ int main(int argc, char* argv[])
 	std::cout << "kfileTest!\n";
 	kfileTest();
 
-	std::cout << "ktimerTest!\n";
-	ktimerTest();
+	//std::cout << "ktimerTest!\n";
+	//ktimerTest();
 
 	return 0;
 }
