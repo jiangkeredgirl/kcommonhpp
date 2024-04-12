@@ -355,9 +355,10 @@ public:
 		}
 		return fullpath;
 	}
-	inline static string CheckDoubleName(const string& path_name)
+
+	inline static string CheckPathNameDuplicate(const string& path_name)
 	{
-		string new_path_name = path_name;	
+		string new_path_name = path_name;
 		int index = 0;
 		while (KFile::IsExist(new_path_name))
 		{
@@ -366,6 +367,29 @@ public:
 			new_path_name = kfile.parent_path + "\\" + kfile.file_stem + "_" + to_string(index) + kfile.file_exten;
 		}
 		return new_path_name;
+	}
+	inline static string CheckFileNameDuplicate(const string& file_name, const set<string> file_names)
+	{
+		string new_file_name = file_name;
+		int index = 0;
+		while (file_names.count(new_file_name))
+		{
+			++index;
+			KFile kfile(file_name);
+			new_file_name = kfile.file_stem + "_" + to_string(index) + kfile.file_exten;
+		}
+		return new_file_name;
+	}
+	inline static string CheckNameDuplicate(const string& name, const set<string> names)
+	{
+		string new_name = name;
+		int index = 0;
+		while (names.count(new_name))
+		{
+			++index;
+			new_name = name + "_" + to_string(index);
+		}
+		return new_name;
 	}
 
 };
