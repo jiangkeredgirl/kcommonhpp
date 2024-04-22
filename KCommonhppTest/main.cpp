@@ -5,6 +5,7 @@
 #include "CodeFormat.h"
 #include "kfile.h"
 #include "ktimer.h"
+#include "Coroutine.h"
 
 void kfileTest()
 {
@@ -76,15 +77,31 @@ void ktimerTest()
 	std::cout << " third elapsed time is " << ktimer.ClockElapsed() << std::endl;
 }
 
+void CoroutineTest()
+{
+	Coroutine::test();
+	std::cout << "10.come back to caller becuase of co_await awaiter\n";
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+}
+
 int main(int argc, char* argv[]) 
 {
 	std::cout << "Hello World!\n";
 
+#if 0
 	std::cout << "kfileTest!\n";
 	kfileTest();
+#endif
 
-	//std::cout << "ktimerTest!\n";
-	//ktimerTest();
+#if 0
+	std::cout << "ktimerTest!\n";
+	ktimerTest();
+#endif
+
+#if 1
+	std::cout << "CoroutineTest!\n";
+	CoroutineTest();
+#endif
 
 	return 0;
 }

@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CodeFormat.h" />
+    <ClInclude Include="..\Coroutine.h" />
     <ClInclude Include="..\cstandard.h" />
     <ClInclude Include="..\kfile.h" />
     <ClInclude Include="..\ktime.h" />
