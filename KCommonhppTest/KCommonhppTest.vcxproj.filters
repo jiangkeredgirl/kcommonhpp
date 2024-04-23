@@ -19,24 +19,4 @@
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\CodeFormat.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\cstandard.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\kfile.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ktime.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ktimer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Coroutine.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-  </ItemGroup>
 </Project>

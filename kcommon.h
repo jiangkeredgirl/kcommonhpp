@@ -11,7 +11,6 @@
 #include "cstandard.h"
 #include "ThreadAssist.h"
 #include "ProducerConsumerTemplate.h"
-#include "numbertostring.h"
 #include "ktime.h"
 #include "ktimer.h"
 #include "kfile.h"

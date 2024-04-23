@@ -6,6 +6,8 @@
 #include "kfile.h"
 #include "ktimer.h"
 #include "Coroutine.h"
+#include "../kprojecthpp/kerrorcode.h"
+#include "../kprojecthpp/kmacro.h"
 
 void kfileTest()
 {
@@ -84,6 +86,44 @@ void CoroutineTest()
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
+void ErrorCodeTest()
+{
+
+	std::cout << MACRO_NAME_STR(ERRORCODE_FAIL) << " value: "<< MACRO_VALUE_STR(ERRORCODE_FAIL) << endl;
+	std::cout << MACRO_NAME_VALUE_STR(ERRORCODE_FAIL)<< endl;
+	std::cout << ErrorCodeStr(ERRORCODE_FAIL) << " error level is: " << ErrorLevelStr(ErrorLevel(ERRORCODE_FAIL)) << endl;
+	int errorcode = ERRORCODE_FAIL;
+	std::cout << ENUM_NAME_STR(errorcode) << " value: " << ENUM_VALUE_STR(errorcode) << endl;
+	std::cout << ENUM_NAME_VALUE_STR(errorcode) << endl;
+	std::cout << ErrorCodeStr(errorcode) << " error level is: " << ErrorLevelStr(ErrorLevel(errorcode)) << endl;
+
+	//std::cout << ENUM_VALUE_STR(ERROR_LEVEL_ERROR) << endl;
+	//std::cout << ENUM_NAME_VALUE_STR(ERROR_LEVEL_ERROR) << endl;
+}
+
+void MacroTest()
+{
+	std::cout << "macro name:" << MACRO_NAME_STR(PI) << endl;
+	std::cout << "macro value:" << MACRO_VALUE_STR(PI) << endl;
+	std::cout << "macro name value:" << MACRO_NAME_VALUE_STR(PI) << endl;
+	
+	std::cout << MACRO_VALUE_STR(MP3) << endl;
+	std::cout << MACRO_NAME_STR(MP3, MP3) << endl;
+
+	std::cout << MacroStr(YEARDAYS) << endl;
+	std::cout << EnumStr(ENUM_STATE_MACHINE_1) << endl;
+	std::cout << EnumStr(ENUM_STATE_MACHINE_2) << endl;
+	std::cout << EnumStr(ENUM_STATE_MACHINE_3) << endl;
+	int value = YEARDAYS;
+	std::cout << MacroStr(value) << endl;
+	value = ENUM_STATE_MACHINE_1;
+	std::cout << EnumStr(value) << endl;
+	value = ENUM_STATE_MACHINE_2;
+	std::cout << EnumStr(value) << endl;
+	value = ENUM_STATE_MACHINE_3;
+	std::cout << EnumStr(value) << endl;
+}
+
 int main(int argc, char* argv[]) 
 {
 	std::cout << "Hello World!\n";
@@ -98,9 +138,19 @@ int main(int argc, char* argv[])
 	ktimerTest();
 #endif
 
-#if 1
+#if 0
 	std::cout << "CoroutineTest!\n";
 	CoroutineTest();
+#endif
+
+#if 1
+	std::cout << "ErrorCodeTest!\n";
+	ErrorCodeTest();
+#endif
+
+#if 1
+	std::cout << "MacroTest!\n";
+	MacroTest();
 #endif
 
 	return 0;

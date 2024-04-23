@@ -18,7 +18,7 @@ typedef wstring tstring;
 typedef  string tstring;
 #endif // !UNICODE
 
-
+inline std::string /*gb2312_to_*/utf8(std::string const& strGb2312);
 
 inline bool isutf8(const std::string& str)
 {
@@ -118,7 +118,7 @@ inline bool is_str_utf8(const char* str)
 	return true;
 }
 
-bool is_str_gbk(const char* str)
+inline bool is_str_gbk(const char* str)
 {
 	unsigned int nBytes = 0;//GBK可用1-2个字节编码,中文两个 ,英文一个
 	unsigned char chr = *str;
