@@ -8,6 +8,10 @@
 #include "Coroutine.h"
 #include "../kprojecthpp/kerrorcode.h"
 #include "../kprojecthpp/kmacro.h"
+#include <iostream>
+#include <io.h>
+#include <fcntl.h>
+#include <windows.h>
 
 void kfileTest()
 {
@@ -69,6 +73,13 @@ void kfileTest()
 	}
 }
 
+KMilliTimer gktimer;
+int ktimercallback()
+{
+	cout << "一个timer函数被执行" << endl;
+	gktimer.StartTimer(1000, false, ktimercallback);
+	return 0;
+}
 void ktimerTest()
 {
 	KMilliTimer ktimer;
@@ -77,6 +88,8 @@ void ktimerTest()
 	std::cout << " second elapsed time is " << ktimer.ClockElapsed() << std::endl;
 	ktimer.Sleep(1000);
 	std::cout << " third elapsed time is " << ktimer.ClockElapsed() << std::endl;
+	
+	gktimer.StartTimer(1000, false, ktimercallback);
 }
 
 void CoroutineTest()
@@ -126,14 +139,18 @@ void MacroTest()
 
 int main(int argc, char* argv[]) 
 {
-	std::cout << "Hello World!\n";
+	// 设置控制台窗口的代码页为 UTF-8
+	SetConsoleOutputCP(CP_UTF8);
+	// 示例输出
+	std::cout << "你好 世界!" << std::endl;
+	std::cout << "Hello World!" << std::endl;
 
 #if 0
 	std::cout << "kfileTest!\n";
 	kfileTest();
 #endif
 
-#if 0
+#if 1
 	std::cout << "ktimerTest!\n";
 	ktimerTest();
 #endif
@@ -143,15 +160,15 @@ int main(int argc, char* argv[])
 	CoroutineTest();
 #endif
 
-#if 1
+#if 0
 	std::cout << "ErrorCodeTest!\n";
 	ErrorCodeTest();
 #endif
 
-#if 1
+#if 0
 	std::cout << "MacroTest!\n";
 	MacroTest();
 #endif
-
+	system("pause");
 	return 0;
 }

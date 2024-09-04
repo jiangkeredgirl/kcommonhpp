@@ -31,14 +31,16 @@ public:
 	{
 		CancelTimer();
 		CancelSleep();
+		m_timer_task.Close();
 	}
 	template <class callable, class... arguments>
-	void StartTimer(int after, bool is_cycle, callable&& f, arguments&&... args)
+	void StartTimer(int after, bool is_cycle, callable&& func, arguments&&... args)
 	{
-		typedef std::function<typename std::invoke_result<callable(arguments...)>::type()> FuncType;
+        //using FuncType = std::function<typename std::invoke_result<callable, arguments...>::type()>;
+        typedef std::function<typename std::invoke_result<callable, arguments...>::type()> FuncType;
 		CancelTimer();
 		m_timer_cancel = false;
-		FuncType* ptask = new FuncType(std::bind(std::forward<callable>(f), std::forward<arguments>(args)...));
+		FuncType* ptask = new FuncType(std::bind(std::forward<callable>(func), std::forward<arguments>(args)...));
 		m_timer_thread = std::thread([this, after, is_cycle, ptask]()
 			{
 				do
@@ -103,7 +105,7 @@ public:
 		{
 			m_timer_thread.join();
 		}
-		m_timer_task.Close();
+		//m_timer_task.Close();
 	}
 	int Sleep(int after)
 	{

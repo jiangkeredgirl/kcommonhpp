@@ -13,6 +13,7 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <functional>
 #include <condition_variable>
 using namespace std;
 

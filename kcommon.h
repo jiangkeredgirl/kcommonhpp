@@ -9,11 +9,10 @@
 
 
 #include "cstandard.h"
+#include "qstandard.h"
 #include "ThreadAssist.h"
 #include "ProducerConsumerTemplate.h"
 #include "ktime.h"
 #include "ktimer.h"
 #include "kfile.h"
 #include "kcommonfunction.h"
-#include "LogWrapper.h"
-//using namespace kk;
