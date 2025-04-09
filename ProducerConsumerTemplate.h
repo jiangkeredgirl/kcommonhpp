@@ -6,6 +6,8 @@
  * \author 蒋珂
  * \date   2023.05.08
  *********************************************************************/
+#pragma once
+
 #include <vector>
 #include <map>
 #include <iostream>
@@ -70,6 +72,13 @@ public:
 		return 0;
 	}
 	/**
+	 * 数据列表空？
+	 */
+    bool IsDataListEmpty()
+	{
+		return m_data_list.empty();
+	}
+    /**
 	 * 关闭生产-消费线程.
 	 * \return 0
 	 */

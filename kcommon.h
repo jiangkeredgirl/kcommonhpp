@@ -16,3 +16,5 @@
 #include "ktimer.h"
 #include "kfile.h"
 #include "kcommonfunction.h"
+#include "ProgramLock.h"
+#include "FileLock.h"

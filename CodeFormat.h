@@ -18,6 +18,16 @@ typedef wstring tstring;
 typedef  string tstring;
 #endif // !UNICODE
 
+#if 0
+inline std::wstring utf8_to_wstring(const std::u8string& u8str) {
+    return std::wstring(u8str.begin(), u8str.end());
+}
+
+inline std::u8string wstring_to_utf8(const std::wstring& wstr) {
+    return std::u8string(wstr.begin(), wstr.end());
+}
+#endif
+
 inline std::string /*gb2312_to_*/utf8(std::string const& strGb2312);
 
 inline bool isutf8(const std::string& str)

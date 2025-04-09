@@ -390,7 +390,66 @@ public:
 			new_name = name + "_" + to_string(index);
 		}
 		return new_name;
-	}
+    }
+
+    inline static bool iSValidFolderPath(const std::string& folder_path)
+    {
+        if (contains_illegal_windows_chars(folder_path)) {
+            std::cerr << "包含非法字符，不能用于文件/文件夹名。" << std::endl;
+            return false;
+        }
+
+        try {
+            fs::path path(utf8tolocal(folder_path));
+
+            // 检查父目录是否存在（如果需要的话）
+            if (path.has_parent_path() && !fs::exists(path.parent_path())) {
+                std::cerr << "上级目录不存在" << std::endl;
+                return false;
+            }
+
+            // 尝试创建目录（临时测试）
+            if (!fs::exists(path)) {
+                bool created = fs::create_directory(path);
+                if (created) {
+                    fs::remove(path);  // 清理测试用目录
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                // 已存在，不能重复创建
+                return false;
+            }
+        } catch (const fs::filesystem_error& e) {
+            std::cerr << "路径异常：" << e.what() << std::endl;
+            return false;
+        }
+    }
+
+    inline static bool is_valid_folder_path(const std::string& folder_path) {
+        if (contains_illegal_windows_chars(folder_path)) {
+            std::cerr << "包含非法字符，不能用于文件/文件夹名。" << std::endl;
+            return false;
+        }
+
+        try {
+            fs::path path(folder_path);
+            if (!fs::exists(path)) {
+                fs::create_directory(path);
+                fs::remove(path);  // 清理临时创建
+            }
+            return true;
+        } catch (const fs::filesystem_error& e) {
+            std::cerr << "文件系统异常: " << e.what() << std::endl;
+            return false;
+        }
+    }
+
+    inline static bool contains_illegal_windows_chars(const std::string& path) {
+        const std::string illegal = "\\/:*?\"<>|";
+        return path.find_first_of(illegal) != std::string::npos;
+    }
 
 };
 
