@@ -12,6 +12,8 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <regex>
+#include <algorithm>
 #include "CodeFormat.h"
 using namespace std;
 namespace fs = std::filesystem;
@@ -114,12 +116,15 @@ public:
 		do
 		{
 			std::error_code ec;
-			std::filesystem::file_size(fs_path, ec);
-			if (ec)
-			{
-				std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " : " << ec.message() << endl;
-				break;
-			}
+            auto size = std::filesystem::file_size(fs_path, ec);
+            if (ec)
+            {
+                std::cerr << "Error getting file size: " << ec.message() << "\n";
+                std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " : " << ec.message() << endl;
+                break;
+            }
+            std::cout << "File size: " << size << " bytes\n";
+
 			//fs_path.parent_path()会返回文件路径中的文件夹路径。
 			//std::error_code ec;
 			if (fs_path.parent_path().empty())
@@ -127,19 +132,24 @@ public:
 				std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " parent_path is null " << endl;
 				break;
 			}
-			bool is_success = std::filesystem::create_directories(fs_path.parent_path());
-			if (ec)
-			{
-				std::cerr << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " : " << ec.message() << endl;
-			}
-			else
-			{
-				error_code = 0;
-#if 1
-				std::cout << __FILE__ << " " << __LINE__ << " " << "file path:" << fs_path << " success created" << endl;
-#endif
-			}
-		} while (0);
+            bool is_created = std::filesystem::create_directories(fs_path.parent_path(), ec);
+            if (ec)
+            {
+                std::cerr << __FILE__ << " " << __LINE__ << " " << "create error file path:" << fs_path << " : " << ec.message() << endl;
+                break;
+            }
+            if (!is_created)
+            {
+                error_code = 0;
+                std::cout << __FILE__ << " " << __LINE__ << " " << "have exist file path:" << fs_path << " : " << ec.message() << endl;
+            }
+            else
+            {
+                error_code = 0;
+                std::cout << __FILE__ << " " << __LINE__ << " " << "create success file path:" << fs_path << " success created" << endl;
+            }
+
+        } while (0);
 		return error_code;
 	}
 	inline static int CreateDir(const string& dir_path)
@@ -394,12 +404,27 @@ public:
 
     inline static bool iSValidFolderPath(const std::string& folder_path)
     {
-        if (contains_illegal_windows_chars(folder_path)) {
+        if(folder_path.empty())
+        {
+            return false;
+        }
+        if (contains_illegal_windows_chars(folder_path))
+        {
             std::cerr << "包含非法字符，不能用于文件/文件夹名。" << std::endl;
             return false;
         }
+        // 检查最后一个字符和第一个字符是否是'.' ' '
+        if (folder_path.back() == '.'
+            || folder_path.back() == ' '
+            || folder_path.front() == '.'
+            || folder_path.front() == ' '
+            )
+        {
+            return false;
+        }
 
-        try {
+        try
+        {
             fs::path path(utf8tolocal(folder_path));
 
             // 检查父目录是否存在（如果需要的话）
@@ -446,8 +471,36 @@ public:
         }
     }
 
+    inline static bool is_valid_windows_folder_name(const std::string& name) {
+        // 空名称非法
+        if (name.empty() || name.length() > 255)
+            return false;
+
+        // 结尾不能是空格或句点
+        if (name.back() == ' ' || name.back() == '.')
+            return false;
+
+        // 开头不能是空格或句点
+        if (name.front() == ' ' || name.front() == '.')
+            return false;
+
+        // 不允许的字符
+        const std::string invalid_chars = "\\/:*?\"<>| \r\n";
+        if (name.find_first_of(invalid_chars) != std::string::npos)
+            return false;
+
+        // 保留名称（不区分大小写）
+        std::string upper_name = name;
+        std::transform(upper_name.begin(), upper_name.end(), upper_name.begin(), ::toupper);
+        static const std::regex reserved_regex(R"(^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$)");
+        if (std::regex_match(upper_name, reserved_regex))
+            return false;
+
+        return true;
+    }
+
     inline static bool contains_illegal_windows_chars(const std::string& path) {
-        const std::string illegal = "\\/:*?\"<>|";
+        const std::string illegal = "\\/:*?\"<>| \r\n";
         return path.find_first_of(illegal) != std::string::npos;
     }
 

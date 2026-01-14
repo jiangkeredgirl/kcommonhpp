@@ -50,5 +50,9 @@
 #include <QProcess>
 #include <QSerialPort>
 #include <QStackedWidget>
+#include <QImageReader>
+#include <QFileInfo>
+#include <QSet>
+#include <QFileInfo>
 
 #endif // QSTANDARD_H

@@ -15,7 +15,7 @@
 
 #pragma once
 #include <string>
-#include <Windows.h>
+//#include <Windows.h>
 #include <DbgHelp.h>
 //#include <char.h>
 #include "kcommon.h"

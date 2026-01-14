@@ -189,7 +189,7 @@ private:
 		int h = 0;
 		int m = 0;
 		int s = 0;
-		sscanf_s(strclocktime.c_str(), "%d:%d:%d", &h, &m, &s);
+        sscanf_s(strclocktime.c_str(), "%02dh:%02dm:%02ds", &h, &m, &s);
 		clocktime += h * 3600;
 		clocktime += m * 60;
 		clocktime += s;
@@ -202,7 +202,7 @@ private:
 		int m = (clocktime / (second * 60)) % 60;
 		int s = (clocktime / second) % 60;
 		char str_time[128] = { 0 };
-		sprintf_s(str_time, ("%d:%d:%d"), h, m, s);
+        sprintf_s(str_time, ("%02dh:%02dm:%02ds"), h, m, s);
 		return str_time;
 	}
 	inline static __int64 GetClockTimeMilli(const string& strclocktime)  ///< %d:%d:%d.%.%d
@@ -212,7 +212,7 @@ private:
 		int m = 0;
 		int s = 0;
 		int ms = 0;
-		sscanf_s(strclocktime.c_str(), "%d:%d:%d.%d", &h, &m, &s, &ms);
+        sscanf_s(strclocktime.c_str(), "%02dh:%02dm:%02ds.%03dms", &h, &m, &s, &ms);
 		clocktime += h * (1000 * 3600);
 		clocktime += m * (1000 * 60);
 		clocktime += s * 1000;
@@ -227,7 +227,7 @@ private:
 		int s = (clocktime / second) % 60;
 		int milli = clocktime % 1000;
 		char str_time[128] = { 0 };
-		sprintf_s(str_time, ("%d:%d:%d.%d"), h, m, s, milli);
+        sprintf_s(str_time, ("%02dh:%02dm:%02ds.%03dms"), h, m, s, milli);
 		return str_time;
 	}
 	inline static __int64 GetClockTimeMicro(const string& strclocktime)  ///< %d:%d:%d.%.%d
@@ -238,7 +238,7 @@ private:
 		int s = 0;
 		int millis = 0;
 		int micros = 0;
-		sscanf_s(strclocktime.c_str(), "%d:%d:%d.%d.%d", &h, &m, &s, &millis, &micros);
+        sscanf_s(strclocktime.c_str(), "%02dh:%02dm:%02ds.%03dms.%03dμs", &h, &m, &s, &millis, &micros);
 		clocktime += h * (1000 * 3600) * 1000;
 		clocktime += m * (1000 * 60) * 1000;
 		clocktime += s * 1000 * 1000;
@@ -255,7 +255,7 @@ private:
 		int milli = (clocktime / 1000) % 1000;
 		int micro = clocktime % 1000;
 		char str_time[128] = { 0 };
-		sprintf_s(str_time, ("%d:%d:%d.%d.%d"), h, m, s, milli, micro);
+        sprintf_s(str_time, ("%02dh:%02dm:%02ds.%03dms.%03dμs"), h, m, s, milli, micro);
 		return str_time;
 	}
 

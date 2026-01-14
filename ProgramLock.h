@@ -15,7 +15,7 @@
 #include <chrono>
 #include <atomic>
 #include <iostream>
-#include <windows.h>
+//#include <windows.h>
 
 
 class ProgramLock

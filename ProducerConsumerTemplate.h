@@ -20,6 +20,40 @@
 using namespace std;
 
 
+
+/**
+ * 获得对象的类名模板.
+ */
+template<class T>
+std::string  ClassName(T& object)
+{
+    //返回的类的全名
+    std::string className = std::string(typeid(object).name());
+    //第一个空格索引
+    int firstSpaceIndex = className.find_first_of(" ") + 1;
+    //最后一个空格索引
+    int lastSpaceIndex = className.find_last_of(" ");
+    //类名长度
+    int nameLength = lastSpaceIndex - firstSpaceIndex - 2;
+    return className.substr(firstSpaceIndex, nameLength);
+}
+
+template<class T>
+std::string  ClassName()
+{
+    //返回的类的全名
+    std::string className = std::string(typeid(T).name());
+    //第一个空格索引
+    int firstSpaceIndex = className.find_first_of(" ") + 1;
+    //最后一个空格索引
+    int lastSpaceIndex = className.find_last_of(" ");
+    //类名长度
+    int nameLength = lastSpaceIndex - firstSpaceIndex - 2;
+    return className.substr(firstSpaceIndex, nameLength);
+}
+
+
+
 /// 生产者-消费者模式数据模板
 template<class DataType>
 class ProducerConsumerTemplate
@@ -40,14 +74,15 @@ public:
 	 * 生产数据，调用此函数会将数据发送给消费者回调函数.
 	 * \return 0 数据生产成功，1 数据生产失败
 	 */
-	int Producer(const shared_ptr<DataType>& data)
+    int Producer(const shared_ptr<DataType>& data, int data_id = 0)
 	{
+        // std::cout << "*****************add producer DataType:" << ClassName(*data) << ", data_id:" << data_id << endl;
 		int error_code = 1;
 		if (m_consumer_thread.joinable())
 		{
 			{
 				lock_guard<mutex> lock(m_data_list_mutex);
-				m_data_list.push_back(data);
+                m_data_list.push_back(make_pair(data, data_id));
 			}
 			m_consumer_condition.notify_one();
 			error_code = 0;
@@ -58,19 +93,30 @@ public:
 	 * 返回数据列表中数据个数.
 	 * \return 数据列表大小
 	 */
-	int GetDataListSize()
-	{
-		return m_data_list.size();
-	}
+    int GetDataListSize(int data_id = 0)
+    {
+        lock_guard<mutex> lock(m_data_list_mutex);
+        // return m_data_list.size();
+        int target = data_id;
+        int count = std::count_if(m_data_list.begin(), m_data_list.end(),
+                                  [&](const auto& item){
+                                      return item.second == target;
+                                  });
+        return count;
+    }
 	/**
 	 * 清空数据列表.
 	 */
-	int DataListClear()
-	{
-		lock_guard<mutex> lock(m_data_list_mutex);
-		m_data_list.clear();
-		return 0;
-	}
+    int DataListClear(int data_id = 0)
+    {
+        lock_guard<mutex> lock(m_data_list_mutex);
+        // m_data_list.clear();
+        int target = data_id;  // 要删除的 int 值
+        m_data_list.remove_if([&](const auto& item){
+            return item.second == target;
+        });
+        return 0;
+    }
 	/**
 	 * 数据列表空？
 	 */
@@ -126,7 +172,7 @@ private:
 							shared_ptr<DataType> data;
 							{
 								lock_guard<mutex> lock(m_data_list_mutex);
-								data = m_data_list.front();
+                                data = m_data_list.front().first;
 								m_data_list.pop_front();
 							}
 							Consumer(data);
@@ -139,43 +185,11 @@ private:
 	}
 
 private:
-	list<shared_ptr<DataType>>        m_data_list;                    //< 数据列表
-	mutex                             m_data_list_mutex;              //< 列表mutex，防止list crash
-	thread                            m_consumer_thread;              //< 数据消费线程，异步处理事件      
-	mutex                             m_consumer_mutex;               //< 线程mutex，配合condition用
-	condition_variable                m_consumer_condition;           //< 线程condition，线程通知  
-	bool                              m_consumer_thread_kill = false; //< 线程kill标记，退出程序前kill线程
-	ConsumerF                         m_consumer_callback = nullptr;  //< 消费者回调函数
+    list<pair<shared_ptr<DataType>, int>>  m_data_list;                    //< 数据列表
+    mutex                                  m_data_list_mutex;              //< 列表mutex，防止list crash
+    thread                                 m_consumer_thread;              //< 数据消费线程，异步处理事件
+    mutex                                  m_consumer_mutex;               //< 线程mutex，配合condition用
+    condition_variable                     m_consumer_condition;           //< 线程condition，线程通知
+    bool                                   m_consumer_thread_kill = false; //< 线程kill标记，退出程序前kill线程
+    ConsumerF                              m_consumer_callback = nullptr;  //< 消费者回调函数
 };
-
-
-/**
- * 获得对象的类名模板.
- */
-template<class T>
-std::string  ClassName(T& object)
-{
-	//返回的类的全名
-	std::string className = std::string(typeid(object).name());
-	//第一个空格索引
-	int firstSpaceIndex = className.find_first_of(" ") + 1;
-	//最后一个空格索引
-	int lastSpaceIndex = className.find_last_of(" ");
-	//类名长度
-	int nameLength = lastSpaceIndex - firstSpaceIndex - 2;
-	return className.substr(firstSpaceIndex, nameLength);
-}
-
-template<class T>
-std::string  ClassName()
-{
-	//返回的类的全名
-	std::string className = std::string(typeid(T).name());
-	//第一个空格索引
-	int firstSpaceIndex = className.find_first_of(" ") + 1;
-	//最后一个空格索引
-	int lastSpaceIndex = className.find_last_of(" ");
-	//类名长度
-	int nameLength = lastSpaceIndex - firstSpaceIndex - 2;
-	return className.substr(firstSpaceIndex, nameLength);
-}

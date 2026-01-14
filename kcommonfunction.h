@@ -9,11 +9,6 @@
 
 #pragma comment(lib, "Advapi32.lib")  // 关键：链接 Advapi32.lib
 #include <iostream>
-#ifdef _WIN64
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 #include "kfile.h"
 #include <iostream>
 #include <cstdio>
@@ -23,10 +18,13 @@
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
-#include <windows.h>
+//#include <windows.h>
 #include <iostream>
 #include <shellapi.h>
 #include <sddl.h>  // For security functions
+#include <algorithm>
+#include <string>
+#include <cctype>
 
 #ifdef _WIN64
 inline string GetProcessName(HMODULE hModule = NULL)
@@ -248,7 +246,7 @@ inline string HexStringToString(const string& hexstr)
 
 inline bool isAlreadyRunning(const std::string& lockfile)
 {
-    std::lock_guard<std::mutex> lock(std::mutex);  // 确保线程安全
+    //std::lock_guard<std::mutex> lock(std::mutex);  // 确保线程安全
     std::ifstream file(lockfile);
     if (file)
     {
@@ -549,6 +547,54 @@ inline void RestartAsAdmin() {
     }
     ExitProcess(0);                 // 原进程退出，等待新进程启动
 }
+
+inline bool RunScriptElevated(const char* _scriptPath) {
+
+    const wchar_t* scriptPath = StringToWstring(_scriptPath).c_str();
+    HANDLE hToken;
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &hToken)) {
+        return false;
+    }
+
+    HANDLE hDupToken;
+    if (!DuplicateTokenEx(hToken, TOKEN_ALL_ACCESS, NULL,
+                          SecurityImpersonation, TokenPrimary, &hDupToken)) {
+        CloseHandle(hToken);
+        return false;
+    }
+
+    STARTUPINFOW si = { sizeof(si) };
+    PROCESS_INFORMATION pi;
+
+    // 设置命令行（注意空间分配）
+    wchar_t cmdLine[MAX_PATH * 2];
+    wcscpy_s(cmdLine, L"\"");
+    wcscat_s(cmdLine, scriptPath);
+    wcscat_s(cmdLine, L"\"");
+
+    BOOL result = CreateProcessWithTokenW(
+        hDupToken,
+        LOGON_WITH_PROFILE,
+        NULL,  // 应用程序名（使用命令行）
+        cmdLine,
+        0,     // 创建标志
+        NULL,   // 环境块
+        NULL,   // 当前目录
+        &si,
+        &pi
+        );
+
+    CloseHandle(hDupToken);
+    CloseHandle(hToken);
+
+    if (result) {
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+        return true;
+    }
+    return false;
+}
+
 #if 0
 #include <windows.h>
 #include <shellapi.h>
@@ -606,3 +652,19 @@ int main() {
 }
 #endif
 /// from deepseek end
+
+inline std::string toLower(const std::string& input)
+{
+    std::string result = input;
+    std::transform(result.begin(), result.end(), result.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    return result;
+}
+#if 0
+int main()
+{
+    std::string s = "Hello, WoRLD 123!";
+    std::string lower = toLower(s);
+    // lower = "hello, world 123!"
+}
+#endif
