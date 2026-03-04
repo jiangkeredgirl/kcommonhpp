@@ -8,6 +8,7 @@
 #pragma once
 
 #pragma comment(lib, "Advapi32.lib")  // 关键：链接 Advapi32.lib
+#include <windows.h>
 #include <iostream>
 #include "kfile.h"
 #include <iostream>
@@ -18,7 +19,6 @@
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
-//#include <windows.h>
 #include <iostream>
 #include <shellapi.h>
 #include <sddl.h>  // For security functions
