@@ -345,18 +345,21 @@ public:
 	{
 		string fullpath;
 		errno_t err = 0;
-		if (_wpgmptr != nullptr)
-		{
-			wchar_t* wpath = nullptr;
+		wchar_t* wpath = nullptr;
+		char* path = nullptr;
+		_get_wpgmptr(&wpath);  // 安全版本
+		_get_pgmptr(&path);
+
+		if (wpath != nullptr)
+		{			
 			err = _get_wpgmptr(&wpath);
 			if (err == 0)
 			{
 				fullpath = WstringToString(wpath);
 			}
 		}
-		else if (_pgmptr != nullptr)
-		{
-			char* path = nullptr;
+		else if (path != nullptr)
+		{			
 			err = _get_pgmptr(&path);
 			if (err == 0)
 			{

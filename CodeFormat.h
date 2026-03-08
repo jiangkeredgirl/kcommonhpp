@@ -11,6 +11,7 @@
 #include <string>
 #include <sstream>
 #include "cstandard.h"
+#include <windows.h>
 
 #ifdef UNICODE
 typedef wstring tstring;
@@ -170,7 +171,7 @@ inline string utf8tolocal(const string& utf8_str)
 	string localstr = utf8_str;
 	if (isutf8(localstr))
 	{
-		localstr = std::filesystem::u8path(localstr).string();
+		localstr = std::filesystem::path(localstr).string();
 	}
 	return localstr;
 }
@@ -183,58 +184,6 @@ inline string localtoutf8(const string& localstr)
 		utf8_str = utf8(utf8_str);
 	}
 	return utf8_str;
-}
-
-inline std::string /*gb2312_to_*/utf8(std::string const& strGb2312)
-{
-	std::vector<wchar_t> buff(strGb2312.size());
-#ifdef _MSC_VER
-	std::locale loc("zh-CN");
-#else
-	std::locale loc("zh_CN.GB18030");
-#endif
-	wchar_t* pwszNext = nullptr;
-	const char* pszNext = nullptr;
-	mbstate_t state = {};
-	int res = std::use_facet<std::codecvt<wchar_t, char, mbstate_t> >
-		(loc).in(state,
-			strGb2312.data(), strGb2312.data() + strGb2312.size(), pszNext,
-			buff.data(), buff.data() + buff.size(), pwszNext);
-
-	if (std::codecvt_base::ok == res)
-	{
-		std::wstring_convert<std::codecvt_utf8<wchar_t>> cutf8;
-		return cutf8.to_bytes(std::wstring(buff.data(), pwszNext));
-	}
-
-	return "";
-
-}
-
-inline std::string /*utf8_to_*/gb2312(std::string const& strUtf8)
-{
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> cutf8;
-	std::wstring wTemp = cutf8.from_bytes(strUtf8);
-#ifdef _MSC_VER
-	std::locale loc("zh-CN");
-#else
-	std::locale loc("zh_CN.GB18030");
-#endif
-	const wchar_t* pwszNext = nullptr;
-	char* pszNext = nullptr;
-	mbstate_t state = {};
-
-	std::vector<char> buff(wTemp.size() * 2);
-	int res = std::use_facet<std::codecvt<wchar_t, char, mbstate_t> >
-		(loc).out(state,
-			wTemp.data(), wTemp.data() + wTemp.size(), pwszNext,
-			buff.data(), buff.data() + buff.size(), pszNext);
-
-	if (std::codecvt_base::ok == res)
-	{
-		return std::string(buff.data(), pszNext);
-	}
-	return "";
 }
 
 inline string WstringToString(const wstring& ws)
@@ -283,3 +232,46 @@ inline string TStrToStr(const tstring& tstr)
 #endif // !UNICODE
 }
 
+#ifdef _WIN32
+inline std::string utf8(std::string const& strGb2312)
+{
+	if (strGb2312.empty()) return "";
+
+	// GB2312 -> Unicode
+	int wlen = MultiByteToWideChar(CP_ACP, 0, strGb2312.c_str(), -1, nullptr, 0);
+	if (wlen <= 0) return "";
+
+	std::vector<wchar_t> wbuff(wlen);
+	MultiByteToWideChar(CP_ACP, 0, strGb2312.c_str(), -1, wbuff.data(), wlen);
+
+	// Unicode -> UTF-8
+	int len = WideCharToMultiByte(CP_UTF8, 0, wbuff.data(), -1, nullptr, 0, nullptr, nullptr);
+	if (len <= 0) return "";
+
+	std::vector<char> buff(len);
+	WideCharToMultiByte(CP_UTF8, 0, wbuff.data(), -1, buff.data(), len, nullptr, nullptr);
+
+	return std::string(buff.data());
+}
+
+inline std::string gb2312(std::string const& strUtf8)
+{
+	if (strUtf8.empty()) return "";
+
+	// UTF-8 -> Unicode
+	int wlen = MultiByteToWideChar(CP_UTF8, 0, strUtf8.c_str(), -1, nullptr, 0);
+	if (wlen <= 0) return "";
+
+	std::vector<wchar_t> wbuff(wlen);
+	MultiByteToWideChar(CP_UTF8, 0, strUtf8.c_str(), -1, wbuff.data(), wlen);
+
+	// Unicode -> GB2312
+	int len = WideCharToMultiByte(CP_ACP, 0, wbuff.data(), -1, nullptr, 0, nullptr, nullptr);
+	if (len <= 0) return "";
+
+	std::vector<char> buff(len);
+	WideCharToMultiByte(CP_ACP, 0, wbuff.data(), -1, buff.data(), len, nullptr, nullptr);
+
+	return std::string(buff.data());
+}
+#endif

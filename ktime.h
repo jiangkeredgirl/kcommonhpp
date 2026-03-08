@@ -19,6 +19,25 @@
 using namespace std;
 using namespace chrono;
 
+
+inline std::tm* localtime_safe(const std::time_t* timep) {
+	if (!timep) return nullptr;
+	static thread_local std::tm tm_buf;
+#if defined(_WIN32) || defined(_MSC_VER)
+	// localtime_s: errno_t localtime_s(struct tm* _Tm, const time_t* _Time)
+	if (localtime_s(&tm_buf, timep) != 0) {
+		return nullptr;
+	}
+	return &tm_buf;
+#else
+	// localtime_r: struct tm* localtime_r(const time_t* timep, struct tm* result)
+	if (localtime_r(timep, &tm_buf) == nullptr) {
+		return nullptr;
+	}
+	return &tm_buf;
+#endif
+}
+
 template <class TimeUnit = std::chrono::milliseconds>
 class KTime
 {
@@ -104,7 +123,7 @@ public:
 			break;
 		}
 		std::stringstream ss;
-		ss << std::put_time(std::localtime(&loctime), "%Y-%m-%d");
+		ss << std::put_time(localtime_safe(&loctime), "%Y-%m-%d");
 		return ss.str();
 	}
 	inline static string GetTime(std::time_t timestamp)
@@ -125,7 +144,7 @@ public:
 			loctime = timestamp;
 			millis = 0;
 			micros = 0;
-			ss << std::put_time(std::localtime(&loctime), "%H.%M.%S");
+			ss << std::put_time(localtime_safe(&loctime), "%H.%M.%S");
 			break;
 		}
 		case 2:
@@ -133,7 +152,7 @@ public:
 			loctime = timestamp / 1000;
 			millis = timestamp % 1000;
 			micros = 0;
-			ss << std::put_time(std::localtime(&loctime), "%H.%M.%S") << "." << millis;
+			ss << std::put_time(localtime_safe(&loctime), "%H.%M.%S") << "." << millis;
 			break;
 		}
 		case 3:
@@ -141,14 +160,14 @@ public:
 			loctime = timestamp / 1000000;
 			millis = (timestamp / 1000) % 1000;
 			micros = timestamp % 1000;
-			ss << std::put_time(std::localtime(&loctime), "%H.%M.%S") << "." << millis << "." << micros;
+			ss << std::put_time(localtime_safe(&loctime), "%H.%M.%S") << "." << millis << "." << micros;
 			break;
 		}
 		default:
 			loctime = timestamp;
 			millis = 0;
 			micros = 0;
-			ss << std::put_time(std::localtime(&loctime), "%H.%M.%S") << "." << millis;
+			ss << std::put_time(localtime_safe(&loctime), "%H.%M.%S") << "." << millis;
 			break;
 		}
 		return ss.str();
@@ -296,7 +315,7 @@ private:
 	{
 		std::time_t loctime = timestamp;
 		std::stringstream ss;
-		ss << std::put_time(std::localtime(&loctime), "%Y-%m-%d %H:%M:%S");
+		ss << std::put_time(localtime_safe(&loctime), "%Y-%m-%d %H:%M:%S");
 		return ss.str(); //秒时间
 	}
 	inline static time_t GetDateTimeMilli(const string& timestr)  ///< h:%d:m:%d:s:%d:ms:%d
@@ -336,7 +355,7 @@ private:
 		std::time_t loctime = timestamp / 1000;
 		std::time_t millisecs = timestamp % 1000;
 		std::stringstream ss;
-		ss << std::put_time(std::localtime(&loctime), "%Y-%m-%d %H:%M:%S") << "." << millisecs;
+		ss << std::put_time(localtime_safe(&loctime), "%Y-%m-%d %H:%M:%S") << "." << millisecs;
 		return ss.str(); //毫秒时间
 	}
 	inline static time_t GetDateTimeMicro(const string& timestr)  ///< h:%d:m:%d:s:%d:ms:%d
@@ -377,7 +396,7 @@ private:
 		std::time_t millisecs = (timestamp / 1000) % 1000;
 		std::time_t microsecs = timestamp % 1000;
 		std::stringstream ss;
-		ss << std::put_time(std::localtime(&loctime), "%Y-%m-%d %H:%M:%S") << "." << millisecs << "." << microsecs;
+		ss << std::put_time(localtime_safe(&loctime), "%Y-%m-%d %H:%M:%S") << "." << millisecs << "." << microsecs;
 		return ss.str(); //微秒时间
 	}
 };
